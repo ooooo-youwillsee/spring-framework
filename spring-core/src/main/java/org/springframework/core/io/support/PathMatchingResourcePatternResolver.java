@@ -531,6 +531,7 @@ public class PathMatchingResourcePatternResolver implements ResourcePatternResol
 	 * @return the part of the location that denotes the root directory
 	 * @see #retrieveMatchingFiles
 	 */
+	// 通配符资源加载
 	protected String determineRootDir(String location) {
 		int prefixEnd = location.indexOf(':') + 1;
 		int rootDirEnd = location.length();

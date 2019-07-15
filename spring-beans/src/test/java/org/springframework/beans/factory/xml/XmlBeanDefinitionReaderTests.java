@@ -60,7 +60,7 @@ public class XmlBeanDefinitionReaderTests {
 		SimpleBeanDefinitionRegistry registry = new SimpleBeanDefinitionRegistry();
 		Resource resource = new InputStreamResource(getClass().getResourceAsStream("test.xml"));
 		XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(registry);
-		reader.setValidationMode(XmlBeanDefinitionReader.VALIDATION_DTD);
+		reader.setValidationMode(XmlBeanDefinitionReader.VALIDATION_DTD) ;
 		reader.loadBeanDefinitions(resource);
 		testBeanDefinitions(registry);
 	}
