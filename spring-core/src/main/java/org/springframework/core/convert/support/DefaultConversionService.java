@@ -66,6 +66,7 @@ public class DefaultConversionService extends GenericConversionService {
 	 */
 	public static ConversionService getSharedInstance() {
 		DefaultConversionService cs = sharedInstance;
+		// 单例模式，线程安全
 		if (cs == null) {
 			synchronized (DefaultConversionService.class) {
 				cs = sharedInstance;
@@ -85,6 +86,7 @@ public class DefaultConversionService extends GenericConversionService {
 	 * @throws ClassCastException if the given ConverterRegistry could not be cast to a ConversionService
 	 */
 	public static void addDefaultConverters(ConverterRegistry converterRegistry) {
+		// 添加系统默认的转换器
 		addScalarConverters(converterRegistry);
 		addCollectionConverters(converterRegistry);
 

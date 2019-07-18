@@ -583,7 +583,7 @@ class RetryAspect {
 				this.beginCalls++;
 				try {
 					o = jp.proceed();
-					this.commitCalls++;
+		 			this.commitCalls++;
 				}
 				catch (RetryableException re) {
 					this.rollbackCalls++;

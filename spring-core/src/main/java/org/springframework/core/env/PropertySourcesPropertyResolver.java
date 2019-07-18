@@ -40,6 +40,7 @@ public class PropertySourcesPropertyResolver extends AbstractPropertyResolver {
 	 * @param propertySources the set of {@link PropertySource} objects to use
 	 */
 	public PropertySourcesPropertyResolver(@Nullable PropertySources propertySources) {
+		// propertySources默认为MutablePropertySources
 		this.propertySources = propertySources;
 	}
 
@@ -88,6 +89,9 @@ public class PropertySourcesPropertyResolver extends AbstractPropertyResolver {
 						value = resolveNestedPlaceholders((String) value);
 					}
 					logKeyFound(key, propertySource, value);
+					/*
+					* 调用父类的convertValueIfNecessary，因为父类有conversionService（转换服务类）
+					* */
 					return convertValueIfNecessary(value, targetValueType);
 				}
 			}

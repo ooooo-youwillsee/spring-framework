@@ -305,7 +305,9 @@ public class BeanDefinitionParserDelegate {
 	 * @see #getDefaults()
 	 */
 	public void initDefaults(Element root, @Nullable BeanDefinitionParserDelegate parent) {
+		// 将parent.defaults合并到this.defaults中,优先使用parent中default
 		populateDefaults(this.defaults, (parent != null ? parent.defaults : null), root);
+		// 注册defaults到readerContext， readerContext在上一次调用new BeanDefinitionParserDelegate(readerContext)初始化
 		this.readerContext.fireDefaultsRegistered(this.defaults);
 	}
 
@@ -512,6 +514,7 @@ public class BeanDefinitionParserDelegate {
 		}
 
 		try {
+			// 创建beanDefinition
 			AbstractBeanDefinition bd = createBeanDefinition(className, parent);
 
 			parseBeanDefinitionAttributes(ele, beanName, containingBean, bd);

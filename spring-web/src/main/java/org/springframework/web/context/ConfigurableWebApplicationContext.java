@@ -31,7 +31,7 @@ import org.springframework.lang.Nullable;
  * invocation of the {@link #refresh} method inherited from
  * {@link org.springframework.context.ConfigurableApplicationContext}.
  * They do not cause an initialization of the context on their own.
- *
+ *ser
  * @author Juergen Hoeller
  * @since 05.12.2003
  * @see #refresh

@@ -93,6 +93,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	@Override
 	public void registerBeanDefinitions(Document doc, XmlReaderContext readerContext) {
 		this.readerContext = readerContext;
+		// doc.getDocumentElement() 为根标签 <beans>
 		doRegisterBeanDefinitions(doc.getDocumentElement());
 	}
 
@@ -126,6 +127,10 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 		// then ultimately reset this.delegate back to its original (parent) reference.
 		// this behavior emulates a stack of delegates without actually necessitating one.
 		BeanDefinitionParserDelegate parent = this.delegate;
+		/*
+		* delegate --> beanDefinition解析委托类
+		* createDelegate方法主要是执行#initDefaults方法
+		* */
 		this.delegate = createDelegate(getReaderContext(), root, parent);
 
 		if (this.delegate.isDefaultNamespace(root)) {
@@ -144,9 +149,11 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 				}
 			}
 		}
-
+		// preProcessXml为空方法
 		preProcessXml(root);
+		// 解析beanDefinitions
 		parseBeanDefinitions(root, this.delegate);
+		// postProcessXml为空方法
 		postProcessXml(root);
 
 		this.delegate = parent;
@@ -156,6 +163,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 			XmlReaderContext readerContext, Element root, @Nullable BeanDefinitionParserDelegate parentDelegate) {
 
 		BeanDefinitionParserDelegate delegate = new BeanDefinitionParserDelegate(readerContext);
+		// 对属性标签设置默认值
 		delegate.initDefaults(root, parentDelegate);
 		return delegate;
 	}
@@ -166,36 +174,58 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	 * @param root the DOM root element of the document
 	 */
 	protected void parseBeanDefinitions(Element root, BeanDefinitionParserDelegate delegate) {
+		// 如果是默认的命名空间
 		if (delegate.isDefaultNamespace(root)) {
 			NodeList nl = root.getChildNodes();
 			for (int i = 0; i < nl.getLength(); i++) {
 				Node node = nl.item(i);
+				// 如果是Element
 				if (node instanceof Element) {
 					Element ele = (Element) node;
+					// 默认命名空间
 					if (delegate.isDefaultNamespace(ele)) {
 						parseDefaultElement(ele, delegate);
 					}
 					else {
+						// 不是默认的命名空间，例如<tx:、 <aop:config>
 						delegate.parseCustomElement(ele);
 					}
 				}
 			}
 		}
 		else {
+			// 不是默认的命名空间，例如<tx:、 <aop:config>
 			delegate.parseCustomElement(root);
 		}
 	}
 
 	private void parseDefaultElement(Element ele, BeanDefinitionParserDelegate delegate) {
+		/*
+		* 解析import标签
+		* <import resource="classpath*:/spring/job-timer.xml" />
+		* */
 		if (delegate.nodeNameEquals(ele, IMPORT_ELEMENT)) {
 			importBeanDefinitionResource(ele);
 		}
+		/*
+		* 解析alias标签
+		* 例如：
+		* <bean id="some" class="src.com.Some"/>
+		* <alias name="some" alias="someJava,oneBean,twoBean"/>
+		* */
 		else if (delegate.nodeNameEquals(ele, ALIAS_ELEMENT)) {
 			processAliasRegistration(ele);
 		}
+		/*
+		* 解析bean标签
+		* <bean id="some" class="src.com.Some"/>
+		* */
 		else if (delegate.nodeNameEquals(ele, BEAN_ELEMENT)) {
 			processBeanDefinition(ele, delegate);
 		}
+		/*
+		* 解析嵌套的beans标签，（递归解析）
+		* */
 		else if (delegate.nodeNameEquals(ele, NESTED_BEANS_ELEMENT)) {
 			// recurse
 			doRegisterBeanDefinitions(ele);
@@ -214,6 +244,10 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 		}
 
 		// Resolve system properties: e.g. "${user.dir}"
+		/*
+		* getReaderContext().getEnvironment()  --> AbstractEnvironment
+		*
+		* */
 		location = getReaderContext().getEnvironment().resolveRequiredPlaceholders(location);
 
 		Set<Resource> actualResources = new LinkedHashSet<>(4);

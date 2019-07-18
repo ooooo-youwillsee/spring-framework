@@ -83,6 +83,12 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 	 */
 	protected AbstractBeanDefinitionReader(BeanDefinitionRegistry registry) {
 		Assert.notNull(registry, "BeanDefinitionRegistry must not be null");
+		/**
+		 * registry 一般指向beanFactory
+		 *
+		 * @see  DefaultListableBeanFactory
+		 * @see  ApplicationContext
+		 */
 		this.registry = registry;
 
 		// Determine ResourceLoader to use.
@@ -90,14 +96,25 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 			this.resourceLoader = (ResourceLoader) this.registry;
 		}
 		else {
+			// 默认情况下都是 路径匹配的资源解析器
 			this.resourceLoader = new PathMatchingResourcePatternResolver();
 		}
 
 		// Inherit Environment if possible
 		if (this.registry instanceof EnvironmentCapable) {
+			/**
+			 * EnvironmentCapable 接口表示具有获取环境的能力
+			 * applicationContext 实现了EnvironmentCapable接口
+			 * @see ApplicationContext
+			 */
 			this.environment = ((EnvironmentCapable) this.registry).getEnvironment();
 		}
 		else {
+			/**
+			 * StandardEnvironment 不具备web环境
+			 *
+			 * @see StandardServletEnvironment
+ 			 */
 			this.environment = new StandardEnvironment();
 		}
 	}

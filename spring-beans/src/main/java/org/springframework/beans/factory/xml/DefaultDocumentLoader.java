@@ -68,12 +68,14 @@ public class DefaultDocumentLoader implements DocumentLoader {
 	@Override
 	public Document loadDocument(InputSource inputSource, EntityResolver entityResolver,
 			ErrorHandler errorHandler, int validationMode, boolean namespaceAware) throws Exception {
-
+		// 创建DocumentBuilderFactory
 		DocumentBuilderFactory factory = createDocumentBuilderFactory(validationMode, namespaceAware);
 		if (logger.isTraceEnabled()) {
 			logger.trace("Using JAXP provider [" + factory.getClass().getName() + "]");
 		}
+		// builder -> com.sun.org.apache.xerces.internal.jaxp
 		DocumentBuilder builder = createDocumentBuilder(factory, entityResolver, errorHandler);
+		// 解析资源
 		return builder.parse(inputSource);
 	}
 
@@ -87,11 +89,12 @@ public class DefaultDocumentLoader implements DocumentLoader {
 	 */
 	protected DocumentBuilderFactory createDocumentBuilderFactory(int validationMode, boolean namespaceAware)
 			throws ParserConfigurationException {
-
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		// DocumentBuilderFactory 设置是否检查命名空间
 		factory.setNamespaceAware(namespaceAware);
 
 		if (validationMode != XmlValidationModeDetector.VALIDATION_NONE) {
+			// 验证xml文件
 			factory.setValidating(true);
 			if (validationMode == XmlValidationModeDetector.VALIDATION_XSD) {
 				// Enforce namespace aware for XSD...
@@ -127,7 +130,10 @@ public class DefaultDocumentLoader implements DocumentLoader {
 	protected DocumentBuilder createDocumentBuilder(DocumentBuilderFactory factory,
 			@Nullable EntityResolver entityResolver, @Nullable ErrorHandler errorHandler)
 			throws ParserConfigurationException {
-
+		/*
+		 * factory --->  com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl
+		 * 设置entityResolver和errorHandler
+		 */
 		DocumentBuilder docBuilder = factory.newDocumentBuilder();
 		if (entityResolver != null) {
 			docBuilder.setEntityResolver(entityResolver);

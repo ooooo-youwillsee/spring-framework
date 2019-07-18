@@ -206,8 +206,18 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 	@Override
 	public String resolveRequiredPlaceholders(String text) throws IllegalArgumentException {
 		if (this.strictHelper == null) {
+			/*
+			* 创建PropertyPlaceholderHelper工具类
+			* 主要设置了
+			* 	placeholderPrefix (占位符前缀：'${')
+			* 	placeholderSuffix (占位符后缀：'}' )
+			*   valueSeparator (默认值分隔符: ':' )
+			* */
 			this.strictHelper = createPlaceholderHelper(false);
 		}
+		/*
+		* 解析占位符
+		* */
 		return doResolvePlaceholders(text, this.strictHelper);
 	}
 
@@ -234,6 +244,7 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 	}
 
 	private String doResolvePlaceholders(String text, PropertyPlaceholderHelper helper) {
+		// getPropertyAsRawString() --> 不嵌套解析，解析为字符串
 		return helper.replacePlaceholders(text, this::getPropertyAsRawString);
 	}
 
@@ -255,11 +266,14 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 		if (conversionServiceToUse == null) {
 			// Avoid initialization of shared DefaultConversionService if
 			// no standard type conversion is needed in the first place...
+			// 如果value是targetType的子类
 			if (ClassUtils.isAssignableValue(targetType, value)) {
 				return (T) value;
 			}
+			// 默认的conversionService
 			conversionServiceToUse = DefaultConversionService.getSharedInstance();
 		}
+		// convert
 		return conversionServiceToUse.convert(value, targetType);
 	}
 
