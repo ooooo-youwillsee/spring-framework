@@ -202,6 +202,7 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 		Assert.notNull(resources, "Resource array must not be null");
 		int count = 0;
 		for (Resource resource : resources) {
+			// 加载beanDefinitions
 			count += loadBeanDefinitions(resource);
 		}
 		return count;
@@ -233,11 +234,13 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 			throw new BeanDefinitionStoreException(
 					"Cannot load bean definitions from location [" + location + "]: no ResourceLoader available");
 		}
-
+		// resourceLoader 默认初始化就是 PathMatchingResourcePatternResolver
 		if (resourceLoader instanceof ResourcePatternResolver) {
 			// Resource pattern matching available.
 			try {
+				// 加载资源
 				Resource[] resources = ((ResourcePatternResolver) resourceLoader).getResources(location);
+				// 加载beanDefinitions
 				int count = loadBeanDefinitions(resources);
 				if (actualResources != null) {
 					Collections.addAll(actualResources, resources);

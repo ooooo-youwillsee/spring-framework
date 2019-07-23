@@ -216,6 +216,7 @@ public class ConstructorArgumentValues {
 	public void addGenericArgumentValue(ValueHolder newValue) {
 		Assert.notNull(newValue, "ValueHolder must not be null");
 		if (!this.genericArgumentValues.contains(newValue)) {
+			// 如果name属性一样，则会尝试合并属性，只会合并实现了Mergeable接口的类，如ManagedSet、ManagedList、ManagedMap、ManagedProperties
 			addOrMergeGenericArgumentValue(newValue);
 		}
 	}

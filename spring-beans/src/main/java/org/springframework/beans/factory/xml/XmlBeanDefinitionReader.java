@@ -541,7 +541,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 		* 创建XmlReaderContext：主要是创建了默认的命名空间处理解析器
 		* */
 		documentReader.registerBeanDefinitions(doc, createReaderContext(resource));
-		// return结果为这次注册beanDefinition的个数
+		// return结果为这次新注册beanDefinition的个数
 		return getRegistry().getBeanDefinitionCount() - countBefore;
 	}
 

@@ -5,6 +5,7 @@ import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.SimpleBeanDefinitionRegistry;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.tests.sample.beans.TestBean;
@@ -26,11 +27,11 @@ public class XmlBeanDefinitionReaderTests {
 
 	/**
 	 * 读取 com.ooooo.beans 中的test.xml
-	 * 1、new XmlBeanDefinitionReader(registry)
-	 * 注册了resourceLoader（路径匹配资源加载器），environment (标准环境)
-	 * 2、loadBeanDefinitions(resource)
-	 * 加载beanDefinitions
-	 * 2.1  loadBeanDefinitions
+	 * 		1、new XmlBeanDefinitionReader(registry)
+	 * 			注册了resourceLoader（路径匹配资源加载器），environment (标准环境)
+	 * 		2、loadBeanDefinitions(resource)
+	 * 			加载beanDefinitions
+	 * 			2.1  loadBeanDefinitions
 	 * 此测试代码会在检测验证模式中抛出异常而结束
 	 */
 	@Test
@@ -53,6 +54,21 @@ public class XmlBeanDefinitionReaderTests {
 		reader.loadBeanDefinitions(resource);
 		testBeanDefinitions(registry);
 	}
+
+
+	/**
+	 * 测试import标签
+	 */
+	@Test
+	public void withImport() {
+		SimpleBeanDefinitionRegistry registry = new SimpleBeanDefinitionRegistry();
+		Resource resource = new ClassPathResource("import.xml", getClass());
+		new XmlBeanDefinitionReader(registry).loadBeanDefinitions(resource);
+		testBeanDefinitions(registry);
+	}
+
+
+
 
 
 	private void testBeanDefinitions(BeanDefinitionRegistry registry) {
