@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * <p>
  * 阅读源码 --- XmlBeanDefinitionReader 读取spring配置文件
  */
-public class XmlBeanDefinitionReaderTests {
+public class XmlBeanDefinitionReaderTests_ooooo {
 
 
 	/**
