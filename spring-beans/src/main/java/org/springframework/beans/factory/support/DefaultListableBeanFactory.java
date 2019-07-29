@@ -1178,21 +1178,34 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	public Object resolveDependency(DependencyDescriptor descriptor, @Nullable String requestingBeanName,
 			@Nullable Set<String> autowiredBeanNames, @Nullable TypeConverter typeConverter) throws BeansException {
 
+		// 初始化参数名称发现器，默认就是new DefaultParameterNameDiscoverer()
 		descriptor.initParameterNameDiscovery(getParameterNameDiscoverer());
 		if (Optional.class == descriptor.getDependencyType()) {
+			// optional java8的
 			return createOptionalDependency(descriptor, requestingBeanName);
 		}
 		else if (ObjectFactory.class == descriptor.getDependencyType() ||
 				ObjectProvider.class == descriptor.getDependencyType()) {
+			/*
+			* ObjectFactory 或者 ObjectProvider，直接返回DependencyObjectProvider对象
+			* 实际上DependencyObjectProvider实现了ObjectFactory接口，所以最终就会调用getObject()方法
+			* */
 			return new DependencyObjectProvider(descriptor, requestingBeanName);
 		}
 		else if (javaxInjectProviderClass == descriptor.getDependencyType()) {
+			// 不知道
 			return new Jsr330Factory().createDependencyProvider(descriptor, requestingBeanName);
 		}
 		else {
+			/*
+			* 加载lazy
+			* getAutowireCandidateResolver() --> 默认就是 new SimpleAutowireCandidateResolver()
+			* 对于SimpleAutowireCandidateResolver来说，getLazyResolutionProxyIfNecessary()方法是一个空的实现，直接返回null
+			* */
 			Object result = getAutowireCandidateResolver().getLazyResolutionProxyIfNecessary(
 					descriptor, requestingBeanName);
 			if (result == null) {
+				// 如果result为null，表示不是懒加载的，直接解析依赖
 				result = doResolveDependency(descriptor, requestingBeanName, autowiredBeanNames, typeConverter);
 			}
 			return result;
@@ -1205,12 +1218,20 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
 		InjectionPoint previousInjectionPoint = ConstructorResolver.setCurrentInjectionPoint(descriptor);
 		try {
+			/*
+			* 若DependencyDescriptor是ShortcutDependencyDescriptor类型，直接就会调用BeanFactory#getBean()方法来获取bean
+			* 默认空实现返回null
+			* */
 			Object shortcut = descriptor.resolveShortcut(this);
 			if (shortcut != null) {
 				return shortcut;
 			}
 
 			Class<?> type = descriptor.getDependencyType();
+			/*
+			* 默认情况下，getAutowireCandidateResolver() --> SimpleAutowireCandidateResolver ，在这里直接返回null
+			* 有注解时，getAutowireCandidateResolver() --> QualifierAnnotationAutowireCandidateResolver
+			* */
 			Object value = getAutowireCandidateResolver().getSuggestedValue(descriptor);
 			if (value != null) {
 				if (value instanceof String) {
@@ -1862,6 +1883,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		@Override
 		public Object getObject() throws BeansException {
 			if (this.optional) {
+				// optional java8的
 				return createOptionalDependency(this.descriptor, this.beanName);
 			}
 			else {

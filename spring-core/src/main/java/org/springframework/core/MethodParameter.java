@@ -712,9 +712,11 @@ public class MethodParameter {
 	 */
 	public static MethodParameter forExecutable(Executable executable, int parameterIndex) {
 		if (executable instanceof Method) {
+			// 创建MethodParameter，封装了方法和参数索引，这里会校验参数索引值是否合法
 			return new MethodParameter((Method) executable, parameterIndex);
 		}
 		else if (executable instanceof Constructor) {
+			// 创建MethodParameter，封装了构造方法和参数索引，这里会校验参数索引值是否合法
 			return new MethodParameter((Constructor<?>) executable, parameterIndex);
 		}
 		else {

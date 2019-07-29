@@ -145,19 +145,25 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 				});
 			}
 			else {
+				// 私有方法访问
 				ReflectionUtils.makeAccessible(factoryMethod);
 			}
 
+			// 获得当前执行的工厂方法
 			Method priorInvokedFactoryMethod = currentlyInvokedFactoryMethod.get();
 			try {
+				// 设置当前执行的工厂方法
 				currentlyInvokedFactoryMethod.set(factoryMethod);
+				// invoke()方法执行， 如果是静态工厂方法，factoryBean为null， 如果是factoryBean，直接执行
 				Object result = factoryMethod.invoke(factoryBean, args);
 				if (result == null) {
+					// result为null，返回NullBean对象
 					result = new NullBean();
 				}
 				return result;
 			}
 			finally {
+				// 下面这个finally语句块，是为了确保发生异常了，currentlyInvokedFactoryMethod恢复到之前的状态
 				if (priorInvokedFactoryMethod != null) {
 					currentlyInvokedFactoryMethod.set(priorInvokedFactoryMethod);
 				}

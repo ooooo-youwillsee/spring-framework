@@ -389,6 +389,7 @@ public class DependencyDescriptor extends InjectionPoint implements Serializable
 			if (this.nestingLevel > 1) {
 				Type type = this.field.getGenericType();
 				for (int i = 2; i <= this.nestingLevel; i++) {
+					// 泛型
 					if (type instanceof ParameterizedType) {
 						Type[] args = ((ParameterizedType) type).getActualTypeArguments();
 						type = args[args.length - 1];

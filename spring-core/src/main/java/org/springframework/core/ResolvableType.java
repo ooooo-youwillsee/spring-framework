@@ -443,6 +443,7 @@ public class ResolvableType implements Serializable {
 		if (this == NONE) {
 			return NONE;
 		}
+		// resolved一般情况下都是简单类，也可以是数组，也可以是泛型
 		Class<?> resolved = resolve();
 		if (resolved == null || resolved == type) {
 			return this;
@@ -1316,7 +1317,9 @@ public class ResolvableType implements Serializable {
 	 */
 	static void resolveMethodParameter(MethodParameter methodParameter) {
 		Assert.notNull(methodParameter, "MethodParameter must not be null");
+		// 解析methodParameter中containingClass一般情况下是简单类，也可以是数组，也可以是泛型
 		ResolvableType owner = forType(methodParameter.getContainingClass()).as(methodParameter.getDeclaringClass());
+		// 设置method的参数类型
 		methodParameter.setParameterType(
 				forType(null, new MethodParameterTypeProvider(methodParameter), owner.asVariableResolver()).resolve());
 	}
@@ -1405,6 +1408,7 @@ public class ResolvableType implements Serializable {
 		// For simple Class references, build the wrapper right away -
 		// no expensive resolution necessary, so not worth caching...
 		if (type instanceof Class) {
+			// 这里创建的对象，hash为null, type可能是GenericArrayType，就不会执行到这里
 			return new ResolvableType(type, typeProvider, variableResolver, (ResolvableType) null);
 		}
 
@@ -1412,6 +1416,7 @@ public class ResolvableType implements Serializable {
 		cache.purgeUnreferencedEntries();
 
 		// Check the cache - we may have a ResolvableType which has been resolved before...
+		// 从缓存中获取，如果没有，设置到缓存中
 		ResolvableType resultType = new ResolvableType(type, typeProvider, variableResolver);
 		ResolvableType cachedType = cache.get(resultType);
 		if (cachedType == null) {
