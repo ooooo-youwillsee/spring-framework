@@ -60,10 +60,16 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 	@Override
 	public Object instantiate(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner) {
 		// Don't override the class with CGLIB if no overrides.
+
+		// 如果有Overrides方法，例如lookup-method和replace-method方法
 		if (!bd.hasMethodOverrides()) {
 			Constructor<?> constructorToUse;
 			synchronized (bd.constructorArgumentLock) {
+
+				// 从缓存中获取
 				constructorToUse = (Constructor<?>) bd.resolvedConstructorOrFactoryMethod;
+
+				// 如果constructorToUse为null，则会获得默认的构造方法
 				if (constructorToUse == null) {
 					final Class<?> clazz = bd.getBeanClass();
 					if (clazz.isInterface()) {
@@ -77,6 +83,8 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 						else {
 							constructorToUse = clazz.getDeclaredConstructor();
 						}
+
+						// 缓存构造方法
 						bd.resolvedConstructorOrFactoryMethod = constructorToUse;
 					}
 					catch (Throwable ex) {
@@ -84,10 +92,14 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 					}
 				}
 			}
+
+			// 直接实例化
 			return BeanUtils.instantiateClass(constructorToUse);
 		}
 		else {
 			// Must generate CGLIB subclass.
+
+			// 覆盖方法来实例化， 内部使用cglib来实例化
 			return instantiateWithMethodInjection(bd, beanName, owner);
 		}
 	}
@@ -106,6 +118,7 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 	public Object instantiate(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner,
 			final Constructor<?> ctor, Object... args) {
 
+		// bd.hasMethodOverrides()为true  -> 有lookup-method和replace-method
 		if (!bd.hasMethodOverrides()) {
 			if (System.getSecurityManager() != null) {
 				// use own privileged to change accessibility (when security is on)
@@ -114,9 +127,11 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 					return null;
 				});
 			}
+			// 实例化
 			return BeanUtils.instantiateClass(ctor, args);
 		}
 		else {
+			// 实例化时将lookup-method和replace-method方法替换
 			return instantiateWithMethodInjection(bd, beanName, owner, ctor, args);
 		}
 	}

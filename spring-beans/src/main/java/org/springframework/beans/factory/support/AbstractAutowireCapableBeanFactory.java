@@ -1184,14 +1184,25 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		// 如果factoryMethodName不为空，表示有工厂方法，则用工厂方法实例化
 		if (mbd.getFactoryMethodName() != null) {
+
+			// 总之，就是找到合适的工厂方法来实例化
 			return instantiateUsingFactoryMethod(beanName, mbd, args);
 		}
 
 		// Shortcut when re-creating the same bean...
+
+		// 是否被解析
 		boolean resolved = false;
+
+		// 是否需要构造参数注入
 		boolean autowireNecessary = false;
+
+		/*
+		* args为null，表明调用getBean()方法时，没有指定参数，可以从缓存中获取方法来初始化
+		* */
 		if (args == null) {
 			synchronized (mbd.constructorArgumentLock) {
+				// 从缓存中获取已经被解析过的方法
 				if (mbd.resolvedConstructorOrFactoryMethod != null) {
 					resolved = true;
 					autowireNecessary = mbd.constructorArgumentsResolved;
@@ -1200,27 +1211,41 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 		if (resolved) {
 			if (autowireNecessary) {
+
+				// 找到合适的构造方法实例化 （ctors参数为null，没有指定构造参数）
 				return autowireConstructor(beanName, mbd, null, null);
 			}
 			else {
+
+				// 直接实例化
 				return instantiateBean(beanName, mbd);
 			}
 		}
 
 		// Candidate constructors for autowiring?
+
+		// 从SmartInstantiationAwareBeanPostProcessor后置处理器中获得候选构造器列表
 		Constructor<?>[] ctors = determineConstructorsFromBeanPostProcessors(beanClass, beanName);
 		if (ctors != null || mbd.getResolvedAutowireMode() == AUTOWIRE_CONSTRUCTOR ||
 				mbd.hasConstructorArgumentValues() || !ObjectUtils.isEmpty(args)) {
+			// 找到合适的构造方法实例化， （ctors参数不为null，制定了构造函数）
 			return autowireConstructor(beanName, mbd, ctors, args);
 		}
 
 		// Preferred constructors for default construction?
+
+		/*
+		* RootBeanDefinition.getPreferredConstructors  --> 这个直接返回null，
+		* ClassDerivedBeanDefinition --> 会优先返回主构造器，如果没有的话，返回所有的构造器
+		* */
 		ctors = mbd.getPreferredConstructors();
 		if (ctors != null) {
 			return autowireConstructor(beanName, mbd, ctors, null);
 		}
 
 		// No special handling: simply use no-arg constructor.
+
+		// 使用默认的构造器初始化
 		return instantiateBean(beanName, mbd);
 	}
 
@@ -1296,8 +1321,12 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		if (beanClass != null && hasInstantiationAwareBeanPostProcessors()) {
 			for (BeanPostProcessor bp : getBeanPostProcessors()) {
+
+				// 实现了SmartInstantiationAwareBeanPostProcessor接口
 				if (bp instanceof SmartInstantiationAwareBeanPostProcessor) {
 					SmartInstantiationAwareBeanPostProcessor ibp = (SmartInstantiationAwareBeanPostProcessor) bp;
+
+					// 调用determineCandidateConstructors来返回候选构造列表，如果结果不为空，直接返回
 					Constructor<?>[] ctors = ibp.determineCandidateConstructors(beanClass, beanName);
 					if (ctors != null) {
 						return ctors;
@@ -1324,6 +1353,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 						getAccessControlContext());
 			}
 			else {
+				// getInstantiationStrategy() --> 默认是CglibSubclassingInstantiationStrategy （cglib代理策略类）
+				// 实例化，使用默认的构造参数
 				beanInstance = getInstantiationStrategy().instantiate(mbd, beanName, parent);
 			}
 			BeanWrapper bw = new BeanWrapperImpl(beanInstance);
@@ -1371,6 +1402,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	protected BeanWrapper autowireConstructor(
 			String beanName, RootBeanDefinition mbd, @Nullable Constructor<?>[] ctors, @Nullable Object[] explicitArgs) {
 
+		// 创建ConstructorResolver对象，这里与instantiateUsingFactoryMethod()方法一样
 		return new ConstructorResolver(this).autowireConstructor(beanName, mbd, ctors, explicitArgs);
 	}
 

@@ -180,16 +180,22 @@ public abstract class BeanUtils {
 	public static <T> T instantiateClass(Constructor<T> ctor, Object... args) throws BeanInstantiationException {
 		Assert.notNull(ctor, "Constructor must not be null");
 		try {
+			// 反射让方法可见
 			ReflectionUtils.makeAccessible(ctor);
+
 			if (KotlinDetector.isKotlinReflectPresent() && KotlinDetector.isKotlinType(ctor.getDeclaringClass())) {
 				return KotlinDelegate.instantiateClass(ctor, args);
 			}
 			else {
 				Class<?>[] parameterTypes = ctor.getParameterTypes();
 				Assert.isTrue(args.length <= parameterTypes.length, "Can't specify more arguments than constructor parameters");
+
+				// 给构造函数的参数列表一个默认值
 				Object[] argsWithDefaultValues = new Object[args.length];
 				for (int i = 0 ; i < args.length; i++) {
 					if (args[i] == null) {
+
+						// 判断是否是原生类型，给一个默认值
 						Class<?> parameterType = parameterTypes[i];
 						argsWithDefaultValues[i] = (parameterType.isPrimitive() ? DEFAULT_TYPE_VALUES.get(parameterType) : null);
 					}
@@ -197,6 +203,8 @@ public abstract class BeanUtils {
 						argsWithDefaultValues[i] = args[i];
 					}
 				}
+
+				// 调用newInstance()方法来实例化
 				return ctor.newInstance(argsWithDefaultValues);
 			}
 		}

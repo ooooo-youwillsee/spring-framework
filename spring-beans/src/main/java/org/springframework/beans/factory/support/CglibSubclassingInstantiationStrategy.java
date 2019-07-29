@@ -82,6 +82,8 @@ public class CglibSubclassingInstantiationStrategy extends SimpleInstantiationSt
 			@Nullable Constructor<?> ctor, Object... args) {
 
 		// Must generate CGLIB subclass...
+
+		// 使用cglib来实实例化，owner参数是BeanFactory，用于lookup-method和replace-method拦截器调用
 		return new CglibSubclassCreator(bd, owner).instantiate(ctor, args);
 	}
 
@@ -114,13 +116,17 @@ public class CglibSubclassingInstantiationStrategy extends SimpleInstantiationSt
 		 * @return new instance of the dynamically generated subclass
 		 */
 		public Object instantiate(@Nullable Constructor<?> ctor, Object... args) {
+
+			// 创建cglib增强类
 			Class<?> subclass = createEnhancedSubclass(this.beanDefinition);
 			Object instance;
 			if (ctor == null) {
+				// ctor为null，使用默认的构造函数实例化
 				instance = BeanUtils.instantiateClass(subclass);
 			}
 			else {
 				try {
+					// 使用特定的构造函数实例化
 					Constructor<?> enhancedSubclassConstructor = subclass.getConstructor(ctor.getParameterTypes());
 					instance = enhancedSubclassConstructor.newInstance(args);
 				}
@@ -132,6 +138,13 @@ public class CglibSubclassingInstantiationStrategy extends SimpleInstantiationSt
 			// SPR-10785: set callbacks directly on the instance instead of in the
 			// enhanced class (via the Enhancer) in order to avoid memory leaks.
 			Factory factory = (Factory) instance;
+
+			/*
+			* 设置lookup-method和replace-method的方法拦截器
+			*
+			* 这里的方法拦截器，在调用方法时，会执行其intercept()方法，
+			* 本质上还是Beanfactory#getBean(),初始化 CglibSubclassCreator传入了beanFactory
+			* */
 			factory.setCallbacks(new Callback[] {NoOp.INSTANCE,
 					new LookupOverrideMethodInterceptor(this.beanDefinition, this.owner),
 					new ReplaceOverrideMethodInterceptor(this.beanDefinition, this.owner)});
