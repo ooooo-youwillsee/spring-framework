@@ -248,9 +248,12 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 
 	@Override
 	public void setPropertyValue(PropertyValue pv) throws BeansException {
+		// tokens 一般为null
 		PropertyTokenHolder tokens = (PropertyTokenHolder) pv.resolvedTokens;
 		if (tokens == null) {
 			String propertyName = pv.getName();
+
+			// nestedPa实际上是BeanWrapper对象
 			AbstractNestablePropertyAccessor nestedPa;
 			try {
 				nestedPa = getPropertyAccessorForPropertyPath(propertyName);
@@ -266,6 +269,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 			nestedPa.setPropertyValue(tokens, pv);
 		}
 		else {
+			// 直接设置属性
 			setPropertyValue(tokens, pv);
 		}
 	}
@@ -455,6 +459,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 				}
 				pv.getOriginalPropertyValue().conversionNecessary = (valueToApply != originalValue);
 			}
+			// 设置目标值
 			ph.setValue(valueToApply);
 		}
 		catch (TypeMismatchException ex) {

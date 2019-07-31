@@ -563,8 +563,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			instanceWrapper = createBeanInstance(beanName, mbd, args);
 		}
 
-		// 获得bean对象，在beanDefinition中设置resolvedTargetType属性
+		// 获得bean对象
 		final Object bean = instanceWrapper.getWrappedInstance();
+
+		// 在beanDefinition中设置resolvedTargetType属性，
 		Class<?> beanType = instanceWrapper.getWrappedClass();
 		if (beanType != NullBean.class) {
 			mbd.resolvedTargetType = beanType;
@@ -620,9 +622,13 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			}
 		}
 
-		// 如果允许早期单例暴露
+		/*
+		* 如果允许早期单例暴露
+		* （下面这个if语句，是为了检查【允许早期引用的Bean】是否已经被改变，）
+		* 该Bean可能在调用populateBean()方法和initializeBean()时被改变
+		* */
 		if (earlySingletonExposure) {
-			// 从缓存中获取
+			// 从缓存中获取，如果不为null，则earlySingletonObjects有bean对象，说明已经有其它bean依赖它了
 			Object earlySingletonReference = getSingleton(beanName, false);
 			if (earlySingletonReference != null) {
 
@@ -636,6 +642,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 					String[] dependentBeans = getDependentBeans(beanName);
 					Set<String> actualDependentBeans = new LinkedHashSet<>(dependentBeans.length);
 					for (String dependentBean : dependentBeans) {
+						// 如果依赖该beanName的bean没有被创建成功，if语句不会进入
 						if (!removeSingletonIfCreatedForTypeCheckOnly(dependentBean)) {
 							actualDependentBeans.add(dependentBean);
 						}
@@ -1478,6 +1485,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		// 获得beanDefinition的属性值
 		PropertyValues pvs = (mbd.hasPropertyValues() ? mbd.getPropertyValues() : null);
 
+		// mbd.getResolvedAutowireMode() --> 默认为 AUTOWIRE_NO
 		int resolvedAutowireMode = mbd.getResolvedAutowireMode();
 		if (resolvedAutowireMode == AUTOWIRE_BY_NAME || resolvedAutowireMode == AUTOWIRE_BY_TYPE) {
 			MutablePropertyValues newPvs = new MutablePropertyValues(pvs);
@@ -1805,7 +1813,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			original = Arrays.asList(pvs.getPropertyValues());
 		}
 
-		// 获得typeConverter
+		// 获得typeConverter, 默认情况下为null，采用beanWrapper对象中typeConverterDelegate属性的委托类
 		TypeConverter converter = getCustomTypeConverter();
 		if (converter == null) {
 			converter = bw;
@@ -1827,6 +1835,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			// 没有convert
 			else {
 				String propertyName = pv.getName();
+				/*
+				* 如果originalValue是bean，可能是<david>，其对应的Class是RuntimeBeanReference
+				* */
 				Object originalValue = pv.getValue();
 				if (originalValue == AutowiredPropertyMarker.INSTANCE) {
 					Method writeMethod = bw.getPropertyDescriptor(propertyName).getWriteMethod();
@@ -1836,15 +1847,15 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 					originalValue = new DependencyDescriptor(new MethodParameter(writeMethod, 0), true);
 				}
 
-				// 解析值
+				// 解析值,如果是ref标签，就是利用getBean()来获得bean，如果是TypedStringValue类型的，因为没有targetType，返回默认的
 				Object resolvedValue = valueResolver.resolveValueIfNecessary(pv, originalValue);
 				Object convertedValue = resolvedValue;
 
-				// convertible为true，表示是嵌套或者是数组，例如getFoo().getBar() 或者 person.addresses[0]
+				// convertible为true，表示是不是嵌套，也不是数组，例如getFoo().getBar() 或者 person.addresses[0]
 				boolean convertible = bw.isWritableProperty(propertyName) &&
 						!PropertyAccessorUtils.isNestedOrIndexedProperty(propertyName);
 				if (convertible) {
-					// 转换
+					// 看是否需要转换，基本上不是需要的 实际上这里就是把TypedStringValue的值，转换为相应的目标值，如int、String、其它的beanClass
 					convertedValue = convertForProperty(resolvedValue, propertyName, bw, converter);
 				}
 				// Possibly store converted value in merged bean definition,
@@ -1856,6 +1867,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 					}
 					deepCopy.add(pv);
 				}
+				// 如果originalValue是TypedStringValue类型，并且也不是集合和数组，一般情况都会走此分支
 				else if (convertible && originalValue instanceof TypedStringValue &&
 						!((TypedStringValue) originalValue).isDynamic() &&
 						!(convertedValue instanceof Collection || ObjectUtils.isArray(convertedValue))) {

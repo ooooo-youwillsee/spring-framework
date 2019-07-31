@@ -263,6 +263,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		else {
 			// Fail if we're already creating this bean instance:
 			// We're assumably within a circular reference.
+			// spring不会解决原型模式下的循环引用bean
 			if (isPrototypeCurrentlyInCreation(beanName)) {
 				throw new BeanCurrentlyInCreationException(beanName);
 			}
@@ -302,7 +303,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				checkMergedBeanDefinition(mbd, beanName, args);
 
 				// Guarantee initialization of beans that the current bean depends on.
-				// 获得依赖的bean，例如 <bean id="cat" class="com.Cat" p:name="美美" depends-on="dog"/>
+				// 获得依赖的bean，例如 <bean id="cat" class="com.Cat" p:name="美美" depends-on="dog"/> 或者注解@DependsOn
 				String[] dependsOn = mbd.getDependsOn();
 				if (dependsOn != null) {
 					for (String dep : dependsOn) {
@@ -1172,7 +1173,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 * @param bw the BeanWrapper to initialize
 	 */
 	protected void initBeanWrapper(BeanWrapper bw) {
-		// 设置conversionService
+		// 设置conversionService，默认为null
 		bw.setConversionService(getConversionService());
 		// 注册自定义的属性编辑器
 		registerCustomEditors(bw);
@@ -1187,6 +1188,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 * @param registry the PropertyEditorRegistry to initialize
 	 */
 	protected void registerCustomEditors(PropertyEditorRegistry registry) {
+		// 这个registry为beanWrapper对象
 		PropertyEditorRegistrySupport registrySupport =
 				(registry instanceof PropertyEditorRegistrySupport ? (PropertyEditorRegistrySupport) registry : null);
 		if (registrySupport != null) {
@@ -1660,6 +1662,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 */
 	protected boolean removeSingletonIfCreatedForTypeCheckOnly(String beanName) {
 		if (!this.alreadyCreated.contains(beanName)) {
+			// 移除之后可以再次创建bean，就可以获取最终它依赖的bean，防止早期引用的bean被更改
 			removeSingleton(beanName);
 			return true;
 		}

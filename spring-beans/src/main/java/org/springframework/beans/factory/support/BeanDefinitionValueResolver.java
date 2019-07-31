@@ -108,8 +108,11 @@ class BeanDefinitionValueResolver {
 	public Object resolveValueIfNecessary(Object argName, @Nullable Object value) {
 		//		// We must check each value to see whether it requires a runtime reference
 		// to another bean to be resolved.
+
+		// 如果是ref标签
 		if (value instanceof RuntimeBeanReference) {
 			RuntimeBeanReference ref = (RuntimeBeanReference) value;
+			// 本质上调用getBean()方法来获取
 			return resolveReference(argName, ref);
 		}
 		else if (value instanceof RuntimeBeanNameReference) {
@@ -204,6 +207,7 @@ class BeanDefinitionValueResolver {
 			TypedStringValue typedStringValue = (TypedStringValue) value;
 			Object valueObject = evaluate(typedStringValue);
 			try {
+				// 字符串默认没有targetType，所以resolvedTargetType为null
 				Class<?> resolvedTargetType = resolveTargetType(typedStringValue);
 				if (resolvedTargetType != null) {
 					return this.typeConverter.convertIfNecessary(valueObject, resolvedTargetType);
@@ -303,6 +307,7 @@ class BeanDefinitionValueResolver {
 		try {
 			Object bean;
 			Class<?> beanType = ref.getBeanType();
+			// ref.isToParent() 为true，表示在父类的BeanFactory中，从父类中getBean
 			if (ref.isToParent()) {
 				BeanFactory parent = this.beanFactory.getParentBeanFactory();
 				if (parent == null) {
@@ -327,8 +332,11 @@ class BeanDefinitionValueResolver {
 				}
 				else {
 					resolvedName = String.valueOf(doEvaluate(ref.getBeanName()));
+					// 调用getBean
 					bean = this.beanFactory.getBean(resolvedName);
 				}
+
+				// 互相注册依赖bean，就是两个Map，destroy时销毁bean
 				this.beanFactory.registerDependentBean(resolvedName, this.beanName);
 			}
 			if (bean instanceof NullBean) {

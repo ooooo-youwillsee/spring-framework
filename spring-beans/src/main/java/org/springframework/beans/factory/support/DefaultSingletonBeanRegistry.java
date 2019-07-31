@@ -131,10 +131,12 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 * @param singletonObject the singleton object
 	 */
 	protected void addSingleton(String beanName, Object singletonObject) {
+		// 添加到singletonObjects集合中
 		synchronized (this.singletonObjects) {
 			this.singletonObjects.put(beanName, singletonObject);
 			this.singletonFactories.remove(beanName);
 			this.earlySingletonObjects.remove(beanName);
+			// 标识为已经注册的bean
 			this.registeredSingletons.add(beanName);
 		}
 	}
@@ -262,9 +264,11 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 					if (recordSuppressedExceptions) {
 						this.suppressedExceptions = null;
 					}
+					//  标识bean不在处于创建之中
 					afterSingletonCreation(beanName);
 				}
 				if (newSingleton) {
+					// 标识改bean为已创建的bean
 					addSingleton(beanName, singletonObject);
 				}
 			}
@@ -367,6 +371,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 * @see #isSingletonCurrentlyInCreation
 	 */
 	protected void afterSingletonCreation(String beanName) {
+		// singletonsCurrentlyInCreation.remove()  --> 标识这个bean不在处于创建中
 		if (!this.inCreationCheckExclusions.contains(beanName) && !this.singletonsCurrentlyInCreation.remove(beanName)) {
 			throw new IllegalStateException("Singleton '" + beanName + "' isn't currently in creation");
 		}
