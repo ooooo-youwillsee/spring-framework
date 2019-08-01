@@ -85,6 +85,8 @@ public class XmlBeanFactoryTests_ooooo {
 
 	/**
 	 * 测试lookup-method
+	 *
+	 * lookup-method和replace-method 是在调用instantiate()方法时使用cglib来代理（方法拦截器）
 	 */
 	@Test
 	public void lookupOverrideMethodsWithSetterInjection() {
