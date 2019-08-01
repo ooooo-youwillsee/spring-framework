@@ -66,7 +66,7 @@ public class XmlBeanFactoryTests_ooooo {
 
 
 	/**
-	 * 测试autowire，
+	 * 测试autowire，  这个就是按照类型注入
 	 */
 	@Test
 	public void testAutowireWithDefault() {

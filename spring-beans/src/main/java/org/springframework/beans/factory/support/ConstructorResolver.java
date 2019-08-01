@@ -889,20 +889,32 @@ class ConstructorResolver {
 		TypeConverter customConverter = this.beanFactory.getCustomTypeConverter();
 		TypeConverter converter = (customConverter != null ? customConverter : bw);
 
+		// args 最终解析的参数值
 		ArgumentsHolder args = new ArgumentsHolder(paramTypes.length);
 		Set<ConstructorArgumentValues.ValueHolder> usedValueHolders = new HashSet<>(paramTypes.length);
 		Set<String> autowiredBeanNames = new LinkedHashSet<>(4);
 
+		// 遍历构造函数的每一个参数
 		for (int paramIndex = 0; paramIndex < paramTypes.length; paramIndex++) {
+
+			// 获得参数类型
 			Class<?> paramType = paramTypes[paramIndex];
+
+			// 获得参数名
 			String paramName = (paramNames != null ? paramNames[paramIndex] : "");
 			// Try to find matching constructor argument value, either indexed or generic.
 			ConstructorArgumentValues.ValueHolder valueHolder = null;
+
+			//  resolvedValues 就是标签<constructor-arg>中的值
 			if (resolvedValues != null) {
+
+				// 获得相应的valueHolder。 先根据paramIndex索引来获取，如果没有，则从通用的参数列表按照类型来获取
 				valueHolder = resolvedValues.getArgumentValue(paramIndex, paramType, paramName, usedValueHolders);
 				// If we couldn't find a direct match and are not supposed to autowire,
 				// let's try the next generic, untyped argument value as fallback:
 				// it could match after type conversion (for example, String -> int).
+
+				// fallback机制
 				if (valueHolder == null && (!autowiring || paramTypes.length == resolvedValues.getArgumentCount())) {
 					valueHolder = resolvedValues.getGenericArgumentValue(null, null, usedValueHolders);
 				}
@@ -910,16 +922,21 @@ class ConstructorResolver {
 			if (valueHolder != null) {
 				// We found a potential match - let's give it a try.
 				// Do not consider the same value definition multiple times!
+				// 标记这个valueHolder已被添加
 				usedValueHolders.add(valueHolder);
+				// 原始值
 				Object originalValue = valueHolder.getValue();
 				Object convertedValue;
+				// 如果已经被转换，直接设置convertedValue
 				if (valueHolder.isConverted()) {
 					convertedValue = valueHolder.getConvertedValue();
 					args.preparedArguments[paramIndex] = convertedValue;
 				}
+				// 没有convert
 				else {
 					MethodParameter methodParam = MethodParameter.forExecutable(executable, paramIndex);
 					try {
+						// 转换
 						convertedValue = converter.convertIfNecessary(originalValue, paramType, methodParam);
 					}
 					catch (TypeMismatchException ex) {
@@ -932,10 +949,12 @@ class ConstructorResolver {
 					Object sourceHolder = valueHolder.getSource();
 					if (sourceHolder instanceof ConstructorArgumentValues.ValueHolder) {
 						Object sourceValue = ((ConstructorArgumentValues.ValueHolder) sourceHolder).getValue();
+						// 设置需要被解析
 						args.resolveNecessary = true;
 						args.preparedArguments[paramIndex] = sourceValue;
 					}
 				}
+				// 设置被解析的值和原生的参数值
 				args.arguments[paramIndex] = convertedValue;
 				args.rawArguments[paramIndex] = originalValue;
 			}
@@ -965,6 +984,7 @@ class ConstructorResolver {
 		}
 
 		for (String autowiredBeanName : autowiredBeanNames) {
+			// 互相注册依赖，两个Map，用于销毁bean
 			this.beanFactory.registerDependentBean(autowiredBeanName, beanName);
 			if (logger.isDebugEnabled()) {
 				logger.debug("Autowiring by type from bean name '" + beanName +

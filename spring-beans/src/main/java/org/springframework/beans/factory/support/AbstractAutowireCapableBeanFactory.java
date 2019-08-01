@@ -1847,7 +1847,12 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 					originalValue = new DependencyDescriptor(new MethodParameter(writeMethod, 0), true);
 				}
 
-				// 解析值,如果是ref标签，就是利用getBean()来获得bean，如果是TypedStringValue类型的，因为没有targetType，返回默认的
+				/*
+				* 解析值
+				*  如果是ref标签，就是利用getBean()来获得bean，
+				*  如果这里是TypedStringValue的值，就会转换为相应的目标值，如int、String、其它的beanClass
+				*  如果先前已经按照类型注入， 内部也是直接返回
+				* */
 				Object resolvedValue = valueResolver.resolveValueIfNecessary(pv, originalValue);
 				Object convertedValue = resolvedValue;
 
@@ -1855,11 +1860,13 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 				boolean convertible = bw.isWritableProperty(propertyName) &&
 						!PropertyAccessorUtils.isNestedOrIndexedProperty(propertyName);
 				if (convertible) {
-					// 看是否需要转换，基本上不是需要的 实际上这里就是把TypedStringValue的值，转换为相应的目标值，如int、String、其它的beanClass
+					// 看是否需要转换，基本上不是需要的； 如果是TypedStringValue类型的，因为没有targetType，返回默认的
 					convertedValue = convertForProperty(resolvedValue, propertyName, bw, converter);
 				}
 				// Possibly store converted value in merged bean definition,
 				// in order to avoid re-conversion for every created bean instance.
+
+				// 如果是先前已经按照类型注入，这个if语句可能是true
 				if (resolvedValue == originalValue) {
 					if (convertible) {
 						// 如果是已经转换过的值，设置convertedValue
