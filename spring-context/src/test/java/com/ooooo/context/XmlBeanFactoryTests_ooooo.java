@@ -36,6 +36,8 @@ public class XmlBeanFactoryTests_ooooo {
 
 	/**
 	 * 测试单例bean
+	 *
+	 * 在这个测试中有简单的循环引用
 	 */
 	@Test
 	public void testSingleton() {
@@ -45,6 +47,8 @@ public class XmlBeanFactoryTests_ooooo {
 
 	/**
 	 * 测试循环引用
+	 *
+	 * 在这个测试中有多个bean的循环引用
 	 */
 	@Test
 	public void testCircularReferences() {
@@ -62,7 +66,7 @@ public class XmlBeanFactoryTests_ooooo {
 
 
 	/**
-	 * 测试autowire， 按类型注入
+	 * 测试autowire，
 	 */
 	@Test
 	public void testAutowireWithDefault() {
