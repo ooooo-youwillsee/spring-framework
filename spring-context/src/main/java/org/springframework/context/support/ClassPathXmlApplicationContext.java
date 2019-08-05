@@ -160,6 +160,7 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
 	 * @see org.springframework.beans.factory.xml.XmlBeanDefinitionReader
 	 */
 	public ClassPathXmlApplicationContext(String path, Class<?> clazz) throws BeansException {
+		// path表示资源路径
 		this(new String[] {path}, clazz);
 	}
 
@@ -174,6 +175,7 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
 	 * @see org.springframework.beans.factory.xml.XmlBeanDefinitionReader
 	 */
 	public ClassPathXmlApplicationContext(String[] paths, Class<?> clazz) throws BeansException {
+		// 调用参数为paths的构造器
 		this(paths, clazz, null);
 	}
 
@@ -192,13 +194,16 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
 	public ClassPathXmlApplicationContext(String[] paths, Class<?> clazz, @Nullable ApplicationContext parent)
 			throws BeansException {
 
+		// 调用父类的构造器，实际上就是在父类（AbstractApplicationContext）中设置资源解析器（ResourcePatternResolver）
 		super(parent);
 		Assert.notNull(paths, "Path array must not be null");
 		Assert.notNull(clazz, "Class argument must not be null");
+		// 对于传入的参数paths，变换为configResources
 		this.configResources = new Resource[paths.length];
 		for (int i = 0; i < paths.length; i++) {
 			this.configResources[i] = new ClassPathResource(paths[i], clazz);
 		}
+		// 调用AbstractApplicationContext的refresh() --> 核心方法
 		refresh();
 	}
 
