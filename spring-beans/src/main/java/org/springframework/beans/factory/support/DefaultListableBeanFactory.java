@@ -847,16 +847,29 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
 		// Iterate over a copy to allow for init methods which in turn register new bean definitions.
 		// While this may not be part of the regular factory bootstrap, it does otherwise work fine.
+		// 把BeanDefinitionNames复制一份
 		List<String> beanNames = new ArrayList<>(this.beanDefinitionNames);
 
 		// Trigger initialization of all non-lazy singleton beans...
+		// 遍历beanNames
 		for (String beanName : beanNames) {
+			// 如果BeanDefinition有parent属性，则合并BeanDefinition
 			RootBeanDefinition bd = getMergedLocalBeanDefinition(beanName);
+
+			// 不是抽象bean，是单例bean，bean也不是懒加载的
 			if (!bd.isAbstract() && bd.isSingleton() && !bd.isLazyInit()) {
+
+				/*
+				* bean是factoryBean（工厂bean --> 调用getObject()方法来获得真正的bean）
+				* 实际上，从下面的代码逻辑来看，一般情况下只会初始化factoryBean，并不会初始化真正的bean
+				* */
 				if (isFactoryBean(beanName)) {
+					// 获得fatoryBean
 					Object bean = getBean(FACTORY_BEAN_PREFIX + beanName);
 					if (bean instanceof FactoryBean) {
 						final FactoryBean<?> factory = (FactoryBean<?>) bean;
+
+						// 定义是否允许早期初始化
 						boolean isEagerInit;
 						if (System.getSecurityManager() != null && factory instanceof SmartFactoryBean) {
 							isEagerInit = AccessController.doPrivileged((PrivilegedAction<Boolean>)
@@ -867,20 +880,26 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 							isEagerInit = (factory instanceof SmartFactoryBean &&
 									((SmartFactoryBean<?>) factory).isEagerInit());
 						}
+						// 允许早期初始化(一般都为false)，就调用getBean，实际也就是调用getObject()
 						if (isEagerInit) {
 							getBean(beanName);
 						}
 					}
 				}
 				else {
+					// 不是factoryBean，直接获得单例bean，存放在缓存中
 					getBean(beanName);
 				}
 			}
 		}
 
 		// Trigger post-initialization callback for all applicable beans...
+		// 遍历beanNames，获得
 		for (String beanName : beanNames) {
+
+			// 调用getSingleton()方法，实际上是从单例缓存中获取单例bean，因为在上面的代码中已经初始化过单例bean了
 			Object singletonInstance = getSingleton(beanName);
+			// 如果实现了SmartInitializingSingleton接口，调用afterSingletonsInstantiated()方法来完成实例化之后的操作
 			if (singletonInstance instanceof SmartInitializingSingleton) {
 				final SmartInitializingSingleton smartSingleton = (SmartInitializingSingleton) singletonInstance;
 				if (System.getSecurityManager() != null) {
