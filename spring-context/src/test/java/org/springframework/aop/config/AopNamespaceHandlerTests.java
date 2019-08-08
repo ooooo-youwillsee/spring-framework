@@ -72,9 +72,14 @@ public class AopNamespaceHandlerTests {
 
 		ITestBean bean = getTestBean();
 
+		// 初始化时，getAge()h和getName() 调用的次数为0
 		assertThat(getAgeCounter.getCalls("getAge")).as("Incorrect initial getAge count").isEqualTo(0);
 		assertThat(getNameCounter.getCalls("getName")).as("Incorrect initial getName count").isEqualTo(0);
 
+		/*
+		* 可以参考xml配置： <aop:advisor id="getAgeAdvisor" pointcut="execution(* *..ITestBean.getAge(..))" advice-ref="getAgeCounter"/>
+		* 从这里可以看出，调用getAge()，就用执行getAgeCounter的代理
+		* */
 		bean.getAge();
 
 		assertThat(getAgeCounter.getCalls("getAge")).as("Incorrect getAge count on getAge counter").isEqualTo(1);

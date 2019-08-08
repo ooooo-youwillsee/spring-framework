@@ -234,6 +234,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	}
 
 	@Override
+	// 这个方法是为解决代理对象循环引用的
 	public Object getEarlyBeanReference(Object bean, String beanName) {
 		Object cacheKey = getCacheKey(bean.getClass(), beanName);
 		this.earlyProxyReferences.put(cacheKey, bean);
@@ -241,14 +242,27 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	}
 
 	@Override
+	// 如果测试的话，设置条件断点 --> beanName.equals("testBean")
 	public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) {
+		/*
+		* 这个方法只是用来检测advisedBeans，有没有TargetSource
+		* 如果没有TargetSource，就会直接返回null，然后就会在执行postProcessAfterInitialization()方法中生成proxy对象
+		* 如果有TargetSource，就会执行getAdvicesAndAdvisorsForBean()和createProxy()来创建代理对象
+		* */
+
+
+		// 判断是否为factoryBean，如果是就加上前缀'&'，如果不是就直接返回
 		Object cacheKey = getCacheKey(beanClass, beanName);
 
+		// targetSourcedBeans 表示代理的目标bean
 		if (!StringUtils.hasLength(beanName) || !this.targetSourcedBeans.contains(beanName)) {
+			// 如果bean是需要advise的bean，返回null，可由后面的构造方法或者工厂方法来初始化，然后再进行代理
 			if (this.advisedBeans.containsKey(cacheKey)) {
 				return null;
 			}
+			// 是不是advise的基础Class，如Advisor，Pointcut等这些class
 			if (isInfrastructureClass(beanClass) || shouldSkip(beanClass, beanName)) {
+				// 如果是的话，加入advisedBeans缓存， value为false，表示这个bean是不需要来创建代理
 				this.advisedBeans.put(cacheKey, Boolean.FALSE);
 				return null;
 			}
@@ -293,8 +307,15 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	 */
 	@Override
 	public Object postProcessAfterInitialization(@Nullable Object bean, String beanName) {
+		// 真正生成代理的地方
 		if (bean != null) {
+			// / 判断是否为factoryBean，如果是就加上前缀'&'，如果不是就直接返回
 			Object cacheKey = getCacheKey(bean.getClass(), beanName);
+			/*
+			* 如果不在earlyProxyReferences（早期代理bean集合），如果需要，则会创建代理对象
+			* earlyProxyReferences 这个属性在getEarlyBeanReference()中进行put操作，
+			* 而getEarlyBeanReference()这个方法在addSingletonFactory()，这就是解决代理对象的循环引用问题
+			* */
 			if (this.earlyProxyReferences.remove(cacheKey) != bean) {
 				return wrapIfNecessary(bean, beanName, cacheKey);
 			}
@@ -332,28 +353,37 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	 * @return a proxy wrapping the bean, or the raw bean instance as-is
 	 */
 	protected Object wrapIfNecessary(Object bean, String beanName, Object cacheKey) {
+		// 检查
 		if (StringUtils.hasLength(beanName) && this.targetSourcedBeans.contains(beanName)) {
 			return bean;
 		}
+		// 如果该bean不是需要通知的advisedBean(通知bean)，直接返回
 		if (Boolean.FALSE.equals(this.advisedBeans.get(cacheKey))) {
 			return bean;
 		}
+		// 如果这个是advised类型基础的bean，如Pointcut，Advisor，则缓存在advisedBeans集合中，value置为false，表示不需要进行代理
 		if (isInfrastructureClass(bean.getClass()) || shouldSkip(bean.getClass(), beanName)) {
 			this.advisedBeans.put(cacheKey, Boolean.FALSE);
 			return bean;
 		}
 
 		// Create proxy if we have advice.
+		// 获得相应的advice
 		Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(bean.getClass(), beanName, null);
 		if (specificInterceptors != DO_NOT_PROXY) {
+			// specificInterceptors不为空，表示该bean需要被代理，加入advisedBeans中，value设置为true
 			this.advisedBeans.put(cacheKey, Boolean.TRUE);
+			// 创建代理
 			Object proxy = createProxy(
 					bean.getClass(), beanName, specificInterceptors, new SingletonTargetSource(bean));
+			// 添加到proxyTypes集合中，这个集合存放什么样的bean会被代理成什么样的类型
 			this.proxyTypes.put(cacheKey, proxy.getClass());
+			// 返回代理对象
 			return proxy;
 		}
-
+		// specificInterceptors为空，表示该bean需要任何增强，添加到advisedBeans中，value设置为false
 		this.advisedBeans.put(cacheKey, Boolean.FALSE);
+		// 返回原有的bean对象
 		return bean;
 	}
 
@@ -409,6 +439,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	@Nullable
 	protected TargetSource getCustomTargetSource(Class<?> beanClass, String beanName) {
 		// We can't create fancy target sources for directly registered singletons.
+		// 如果customTargetSourceCreators为null，直接返回null，以便在执行postProcessAfterInitialization()创建代理对象
 		if (this.customTargetSourceCreators != null &&
 				this.beanFactory != null && this.beanFactory.containsBean(beanName)) {
 			for (TargetSourceCreator tsc : this.customTargetSourceCreators) {

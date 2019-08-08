@@ -36,6 +36,9 @@ public class AopTests {
 	}
 
 	/**
+	 *  在new ClassPathXmlApplicationContext() 就会添加beanProcessor -->org.springframework.aop.aspectj.autoproxy.AspectJAwareAdvisorAutoProxyCreator
+	 *
+	 * 在 org.springframework.aop.framework.autoproxy.AbstractAutoProxyCreator#postProcessBeforeInstantiation 这里打断点调试
 	 * 测试aop标签代理
 	 */
 	@Test
@@ -51,6 +54,14 @@ public class AopTests {
 		aspectJAutoProxyCreatorTests.testAdviceUsingJoinPoint();
 	}
 
+
+	/**
+	 * 测试@aspectj代理
+	 */
+	@Test
+	public void aspectJAutoProxyCreatorTests_testAspectApplied() {
+		aspectJAutoProxyCreatorTests.testAspectsAreApplied();
+	}
 
 	/**
 	 * 测试aop失败回调，重试机制

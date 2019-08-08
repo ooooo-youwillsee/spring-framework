@@ -428,6 +428,11 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		// 如果处理器处理之后为null，直接返回结果，助理调用的初始化之后的处理器
 		Object result = existingBean;
 		for (BeanPostProcessor processor : getBeanPostProcessors()) {
+			/*
+			* 如果InstantiationAwareBeanPostProcessor.postProcessBeforeInstantiation()
+			* （实例化之前的处理器返回的null，要生成代理对象就是在这里）
+			* 实际执行的是AbstractAutoProxyCreator.postProcessAfterInitialization()
+			* */
 			Object current = processor.postProcessAfterInitialization(result, beanName);
 			if (current == null) {
 				return result;
@@ -983,6 +988,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			for (BeanPostProcessor bp : getBeanPostProcessors()) {
 
 				// 调用SmartInstantiationAwareBeanPostProcessor接口的getEarlyBeanReference
+				// SmartInstantiationAwareBeanPostProcessor 这个接口用来解决代理对象的循环引用
 				if (bp instanceof SmartInstantiationAwareBeanPostProcessor) {
 					SmartInstantiationAwareBeanPostProcessor ibp = (SmartInstantiationAwareBeanPostProcessor) bp;
 					exposedObject = ibp.getEarlyBeanReference(exposedObject, beanName);
@@ -1969,6 +1975,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 		// 如果mbc为null或者不是合成的beanDefinition，就应用BeanPostProcessors的postProcessAfterInitialization()方法
 		if (mbd == null || !mbd.isSynthetic()) {
+			// AspectJAwareAdvisorAutoProxyCreator 这个aop代理就是发生在这里
 			wrappedBean = applyBeanPostProcessorsAfterInitialization(wrappedBean, beanName);
 		}
 
