@@ -64,8 +64,16 @@ public class DefaultAdvisorAdapterRegistry implements AdvisorAdapterRegistry, Se
 		Advice advice = (Advice) adviceObject;
 		if (advice instanceof MethodInterceptor) {
 			// So well-known it doesn't even need an adapter.
+			/*
+			* 可能是ConstructorInterceptor（构造方法拦截器）
+			* 可能是MethodInterceptor（方法拦截器）
+			* */
 			return new DefaultPointcutAdvisor(advice);
 		}
+		/*
+		* 默认注册了三个通知适配器
+		* MethodBeforeAdviceAdapter() 、 AfterReturningAdviceAdapter() 、ThrowsAdviceAdapter()
+		* */
 		for (AdvisorAdapter adapter : this.adapters) {
 			// Check that it is supported.
 			if (adapter.supportsAdvice(advice)) {

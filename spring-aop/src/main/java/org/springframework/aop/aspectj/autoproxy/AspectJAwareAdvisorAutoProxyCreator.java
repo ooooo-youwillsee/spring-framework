@@ -72,6 +72,9 @@ public class AspectJAwareAdvisorAutoProxyCreator extends AbstractAdvisorAutoProx
 			partiallyComparableAdvisors.add(
 					new PartiallyComparableAdvisorHolder(element, DEFAULT_PRECEDENCE_COMPARATOR));
 		}
+		/*
+		* PartialOrder.sort() 这个方法利用有向图来排序
+		* */
 		List<PartiallyComparableAdvisorHolder> sorted = PartialOrder.sort(partiallyComparableAdvisors);
 		if (sorted != null) {
 			List<Advisor> result = new ArrayList<>(advisors.size());
@@ -81,6 +84,7 @@ public class AspectJAwareAdvisorAutoProxyCreator extends AbstractAdvisorAutoProx
 			return result;
 		}
 		else {
+			// 如果sorted返回null，就调用父类的sortAdvisors()方法
 			return super.sortAdvisors(advisors);
 		}
 	}
@@ -98,13 +102,17 @@ public class AspectJAwareAdvisorAutoProxyCreator extends AbstractAdvisorAutoProx
 	@Override
 	protected boolean shouldSkip(Class<?> beanClass, String beanName) {
 		// TODO: Consider optimization by caching the list of the aspect names
+		// 查找所有候选的advisorBean
 		List<Advisor> candidateAdvisors = findCandidateAdvisors();
+		// 遍历
 		for (Advisor advisor : candidateAdvisors) {
+			// 如果是AspectJPointcutAdvisor类型，并且beanName和aspectName一样，返回true，表示不应该被代理
 			if (advisor instanceof AspectJPointcutAdvisor &&
 					((AspectJPointcutAdvisor) advisor).getAspectName().equals(beanName)) {
 				return true;
 			}
 		}
+		// super.shouldSkip()方法 --> beanName如果是com.mypackage.MyClass.ORIGINAL这种的，返回true，表示不应该被代理
 		return super.shouldSkip(beanClass, beanName);
 	}
 

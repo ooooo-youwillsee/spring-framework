@@ -223,11 +223,22 @@ public abstract class AopUtils {
 	 */
 	public static boolean canApply(Pointcut pc, Class<?> targetClass, boolean hasIntroductions) {
 		Assert.notNull(pc, "Pointcut must not be null");
+
+		/*
+		* 对于Pointcut接口都有两个方法：
+		* 	一个是getClassFilter()    --> 用于匹配类的规则
+		*   一个是getMethodMatcher()  --> 用于匹配方法的规则
+		*
+		* 对于aspectJ来说，PointCut的默认实现AspectJExpressionPointcut
+		* */
+
+		// matches()方法返回false，表示该PointcutAdvisor不适合,  【aspectJ表达式解析跳过】
 		if (!pc.getClassFilter().matches(targetClass)) {
 			return false;
 		}
 
 		MethodMatcher methodMatcher = pc.getMethodMatcher();
+		// methodMatcher是true，表示该PointcutAdvisor适合，直接返回
 		if (methodMatcher == MethodMatcher.TRUE) {
 			// No need to iterate the methods if we're matching any method anyway...
 			return true;
@@ -239,14 +250,20 @@ public abstract class AopUtils {
 		}
 
 		Set<Class<?>> classes = new LinkedHashSet<>();
+		// targetClass不是代理类，就添加到classes
 		if (!Proxy.isProxyClass(targetClass)) {
+			// ClassUtils.getUserClass() --> 如果是cglib，就返回其父类，如果不是cglib，就返回本身
 			classes.add(ClassUtils.getUserClass(targetClass));
 		}
+		// 添加targetClass的所有接口到classes中
 		classes.addAll(ClassUtils.getAllInterfacesForClassAsSet(targetClass));
 
+		// 遍历
 		for (Class<?> clazz : classes) {
+			// 获得clazz的方法
 			Method[] methods = ReflectionUtils.getAllDeclaredMethods(clazz);
 			for (Method method : methods) {
+				// 对于每一个方法都使用matches()方法来判断，如果结果为true，则成功， 【aspectJ表达式解析跳过】
 				if (introductionAwareMethodMatcher != null ?
 						introductionAwareMethodMatcher.matches(method, targetClass, hasIntroductions) :
 						methodMatcher.matches(method, targetClass)) {
@@ -282,9 +299,11 @@ public abstract class AopUtils {
 	 */
 	public static boolean canApply(Advisor advisor, Class<?> targetClass, boolean hasIntroductions) {
 		if (advisor instanceof IntroductionAdvisor) {
+			// 如果是IntroductionAdvisor，通过调用matches()来匹配
 			return ((IntroductionAdvisor) advisor).getClassFilter().matches(targetClass);
 		}
 		else if (advisor instanceof PointcutAdvisor) {
+			// 如果是PointcutAdvisor，则通过切入点通知
 			PointcutAdvisor pca = (PointcutAdvisor) advisor;
 			return canApply(pca.getPointcut(), targetClass, hasIntroductions);
 		}
@@ -303,21 +322,30 @@ public abstract class AopUtils {
 	 * (may be the incoming List as-is)
 	 */
 	public static List<Advisor> findAdvisorsThatCanApply(List<Advisor> candidateAdvisors, Class<?> clazz) {
+		// 如果候选的advisorBeans为空，直接返回空集合
 		if (candidateAdvisors.isEmpty()) {
 			return candidateAdvisors;
 		}
+
+		// 定义eligibleAdvisors集合，用来存放合适的bean
 		List<Advisor> eligibleAdvisors = new ArrayList<>();
+		// 遍历候选的bean
 		for (Advisor candidate : candidateAdvisors) {
+			// 如果是IntroductionAdvisor接口，并且能应用到当前的class代理中，就添加到eligibleAdvisors集合中
 			if (candidate instanceof IntroductionAdvisor && canApply(candidate, clazz)) {
 				eligibleAdvisors.add(candidate);
 			}
 		}
+		// hasIntroductions为false，表示没有IntroductionAdvisor类型的bean
 		boolean hasIntroductions = !eligibleAdvisors.isEmpty();
+		// 再次遍历
 		for (Advisor candidate : candidateAdvisors) {
+			// 如果是IntroductionAdvisor就跳过，因为在上一步已经处理过
 			if (candidate instanceof IntroductionAdvisor) {
 				// already processed
 				continue;
 			}
+			// 能应用则添加
 			if (canApply(candidate, clazz, hasIntroductions)) {
 				eligibleAdvisors.add(candidate);
 			}
