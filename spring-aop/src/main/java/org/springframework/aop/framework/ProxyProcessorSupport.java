@@ -107,7 +107,7 @@ public class ProxyProcessorSupport extends ProxyConfig implements Ordered, BeanC
 		boolean hasReasonableProxyInterface = false;
 		// 对接口遍历
 		for (Class<?> ifc : targetInterfaces) {
-			// 不是callback类型的接口，例如InitializingBean、DisposableBean ，也不是内部的代理接口，并且有方法
+			// 不是callback类型的接口，例如InitializingBean、DisposableBean(因为这些接口都已经实现了) 也不是spring内部的代理接口，并且有方法
 			if (!isConfigurationCallbackInterface(ifc) && !isInternalLanguageInterface(ifc) &&
 					ifc.getMethods().length > 0) {
 				hasReasonableProxyInterface = true;

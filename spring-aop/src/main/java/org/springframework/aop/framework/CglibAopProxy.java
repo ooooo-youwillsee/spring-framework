@@ -161,6 +161,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 			logger.trace("Creating CGLIB proxy: " + this.advised.getTargetSource());
 		}
 
+		// 下面是cglib代理过程，不分析了
 		try {
 			Class<?> rootClass = this.advised.getTargetClass();
 			Assert.state(rootClass != null, "Target class must be available for creating a CGLIB proxy");

@@ -496,7 +496,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 				proxyFactory.setProxyTargetClass(true);
 			}
 			else {
-				// 解析出使用哪一种代理方式（cglib代理、jdk动态代理）
+				// 解析出使用哪一种代理方式（cglib代理、jdk动态代理） （这里会设置jdk代理所需要的接口）
 				evaluateProxyInterfaces(beanClass, proxyFactory);
 			}
 		}
