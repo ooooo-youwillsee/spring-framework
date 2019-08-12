@@ -22,6 +22,7 @@ import java.util.Map;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
+import com.ooooo.tx.beans.TransactionalTestBean;
 import org.junit.After;
 import org.junit.Test;
 
@@ -31,6 +32,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.stereotype.Service;
+import org.springframework.tests.sample.beans.ITestBean;
 import org.springframework.tests.transaction.CallCountingTransactionManager;
 import org.springframework.transaction.config.TransactionManagementConfigUtils;
 import org.springframework.transaction.event.TransactionalEventListenerFactory;
@@ -113,6 +115,16 @@ public class AnnotationTransactionNamespaceHandlerTests {
 		return (TransactionalTestBean) context.getBean("testBean");
 	}
 
+	/**
+	 * 获取测试bean
+	 *  addBy ooooo
+	 * @return
+	 */
+	public com.ooooo.tx.beans.TransactionalTestBean get_ooooo_TransactionalTestBean() {
+		return (com.ooooo.tx.beans.TransactionalTestBean) context.getBean("ooooo-transactionTestBean");
+	}
+
+
 
 	@Service
 	@ManagedResource("test:type=TestBean")
@@ -149,5 +161,6 @@ public class AnnotationTransactionNamespaceHandlerTests {
 		protected void annotationsOnProtectedAreIgnored() {
 		}
 	}
+
 
 }
