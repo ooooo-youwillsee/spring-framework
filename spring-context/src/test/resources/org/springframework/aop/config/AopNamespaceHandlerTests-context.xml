@@ -15,6 +15,8 @@
 			<aop:before pointcut="execution(* *..ITestBean.set*(..))" method="myBeforeAdvice"/>
 			<aop:after pointcut-ref="setCalls" method="myAfterAdvice"/>
 			<aop:around pointcut-ref="setCalls" method="myAroundAdvice"/>
+			<aop:after-returning pointcut-ref="setCalls" method="ooooo_myAfterReturningAdvice"/>
+			<aop:after-throwing pointcut-ref="setCalls" method="ooooo_myAfterThrowingAdvice" />
 		</aop:aspect>
 
 	</aop:config>

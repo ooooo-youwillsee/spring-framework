@@ -40,10 +40,21 @@ public class AopTests {
 	 *
 	 * 在 org.springframework.aop.framework.autoproxy.AbstractAutoProxyCreator#postProcessBeforeInstantiation 这里打断点调试
 	 * 测试aop标签代理
+	 *
+	 * 这里的核心代理类是 ReflectiveMethodInvocation
 	 */
 	@Test
 	public void aopNamespaceHandler_testAdviceInvokedCorrectly() throws Exception {
 		aopNamespaceHandlerTests.testAdviceInvokedCorrectly();
+	}
+
+	/**
+	 * 测试这一句代码 bean.setName("Sally")
+	 * @throws Exception
+	 */
+	@Test
+	public void aopNamespaceHandler_testAspectApplied() throws Exception {
+		aopNamespaceHandlerTests.testAspectApplied();
 	}
 
 	/**

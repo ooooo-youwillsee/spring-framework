@@ -179,7 +179,15 @@ class CountingAspectJAdvice {
 		this.afterCount++;
 	}
 
+	public void ooooo_myAfterReturningAdvice() {
+		this.afterCount++;
+	}
+
 	public void myAfterThrowingAdvice(RuntimeException ex) {
+		this.afterCount++;
+	}
+
+	public void ooooo_myAfterThrowingAdvice() {
 		this.afterCount++;
 	}
 
