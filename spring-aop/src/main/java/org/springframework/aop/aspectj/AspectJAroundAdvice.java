@@ -67,6 +67,7 @@ public class AspectJAroundAdvice extends AbstractAspectJAdvice implements Method
 		ProxyMethodInvocation pmi = (ProxyMethodInvocation) mi;
 		ProceedingJoinPoint pjp = lazyGetProceedingJoinPoint(pmi);
 		JoinPointMatch jpm = getJoinPointMatch(pmi);
+		// 调用invokeAdviceMethod()就会执行around()方法，如果还有其他的拦截器，就会在around()方法中的joinPoint#proceed()中执行下一个拦截器
 		return invokeAdviceMethod(pjp, jpm, null, null);
 	}
 

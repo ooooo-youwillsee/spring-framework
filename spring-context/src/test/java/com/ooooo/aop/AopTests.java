@@ -50,6 +50,7 @@ public class AopTests {
 
 	/**
 	 * 测试这一句代码 bean.setName("Sally")
+	 * 默认代理是 AspectJAwareAdvisorAutoProxyCreator
 	 * @throws Exception
 	 */
 	@Test
@@ -57,7 +58,22 @@ public class AopTests {
 		aopNamespaceHandlerTests.testAspectApplied();
 	}
 
+
 	/**
+	 * 有个标签 <aop:aspectj-autoproxy/> 默认代理就是 AnnotationAwareAspectJAutoProxyCreator (具有解析aop注解能力)
+	 *
+	 * 这里的核心代理类是 ReflectiveMethodInvocation
+	 * 测试@aspectj代理
+	 */
+	@Test
+	public void aspectJAutoProxyCreatorTests_testAspectApplied() {
+		aspectJAutoProxyCreatorTests.testAspectsAreApplied();
+	}
+
+
+	/**
+	 * 有个标签 <aop:aspectj-autoproxy/> 默认代理就是 AnnotationAwareAspectJAutoProxyCreator (具有解析aop注解能力)
+	 *
 	 * 测试@aspectj代理
 	 */
 	@Test
@@ -65,14 +81,6 @@ public class AopTests {
 		aspectJAutoProxyCreatorTests.testAdviceUsingJoinPoint();
 	}
 
-
-	/**
-	 * 测试@aspectj代理
-	 */
-	@Test
-	public void aspectJAutoProxyCreatorTests_testAspectApplied() {
-		aspectJAutoProxyCreatorTests.testAspectsAreApplied();
-	}
 
 	/**
 	 * 测试aop失败回调，重试机制
