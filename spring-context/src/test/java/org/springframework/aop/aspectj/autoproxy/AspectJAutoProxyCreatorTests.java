@@ -82,6 +82,8 @@ public class AspectJAutoProxyCreatorTests {
 
 		ITestBean tb = (ITestBean) bf.getBean("adrian");
 		assertThat(tb.getAge()).isEqualTo(68);
+
+		// MethodInvokingFactoryBean 这个bean是来定制生成代理对象的工厂bean
 		MethodInvokingFactoryBean factoryBean = (MethodInvokingFactoryBean) bf.getBean("&factoryBean");
 		assertThat(AopUtils.isAopProxy(factoryBean.getTargetObject())).isTrue();
 		assertThat(((ITestBean) factoryBean.getTargetObject()).getAge()).isEqualTo(68);

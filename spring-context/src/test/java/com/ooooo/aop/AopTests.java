@@ -41,6 +41,8 @@ public class AopTests {
 	 * 在 org.springframework.aop.framework.autoproxy.AbstractAutoProxyCreator#postProcessBeforeInstantiation 这里打断点调试
 	 * 测试aop标签代理
 	 *
+	 * 这里测试这一句话 ITestBean bean = getTestBean(); --> 可以看出是bean初始化之后才生成代理对象的
+	 *
 	 * 这里的核心代理类是 ReflectiveMethodInvocation
 	 */
 	@Test
@@ -50,6 +52,7 @@ public class AopTests {
 
 	/**
 	 * 测试这一句代码 bean.setName("Sally")
+	 *
 	 * 默认代理是 AspectJAwareAdvisorAutoProxyCreator
 	 * @throws Exception
 	 */
@@ -63,6 +66,8 @@ public class AopTests {
 	 * 有个标签 <aop:aspectj-autoproxy/> 默认代理就是 AnnotationAwareAspectJAutoProxyCreator (具有解析aop注解能力)
 	 *
 	 * 这里的核心代理类是 ReflectiveMethodInvocation
+	 * 测试这一句代码 newContext("aspects.xml") --—> xml配置解析<aop:aspectj-autoproxy/>过程
+	 *
 	 * 测试@aspectj代理
 	 */
 	@Test
@@ -72,7 +77,8 @@ public class AopTests {
 
 
 	/**
-	 * 有个标签 <aop:aspectj-autoproxy/> 默认代理就是 AnnotationAwareAspectJAutoProxyCreator (具有解析aop注解能力)
+	 *
+	 * 这里的是直接创建 AnnotationAwareAspectJAutoProxyCreator 的bean
 	 *
 	 * 测试@aspectj代理
 	 */

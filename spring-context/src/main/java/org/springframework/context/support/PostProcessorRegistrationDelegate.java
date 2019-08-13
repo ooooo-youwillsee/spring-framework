@@ -260,6 +260,9 @@ final class PostProcessorRegistrationDelegate {
 		// Next, register the BeanPostProcessors that implement Ordered.
 		List<BeanPostProcessor> orderedPostProcessors = new ArrayList<>(orderedPostProcessorNames.size());
 		for (String ppName : orderedPostProcessorNames) {
+			 /*
+			 * org.springframework.aop.config.internalAutoProxyCreator 就是在这里初始化的
+			 * */
 			BeanPostProcessor pp = beanFactory.getBean(ppName, BeanPostProcessor.class);
 			orderedPostProcessors.add(pp);
 			if (pp instanceof MergedBeanDefinitionPostProcessor) {

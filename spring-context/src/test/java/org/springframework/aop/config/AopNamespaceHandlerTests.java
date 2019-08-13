@@ -85,6 +85,7 @@ public class AopNamespaceHandlerTests {
 		assertThat(getAgeCounter.getCalls("getAge")).as("Incorrect getAge count on getAge counter").isEqualTo(1);
 		assertThat(getNameCounter.getCalls("getAge")).as("Incorrect getAge count on getName counter").isEqualTo(0);
 
+		// <aop:advisor id="getNameAdvisor" pointcut-ref="getNameCalls" advice-ref="getNameCounter"/>
 		bean.getName();
 
 		assertThat(getNameCounter.getCalls("getName")).as("Incorrect getName count on getName counter").isEqualTo(1);
