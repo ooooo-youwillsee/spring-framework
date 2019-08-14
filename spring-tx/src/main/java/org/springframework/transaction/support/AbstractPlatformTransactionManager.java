@@ -533,6 +533,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 					definition.getIsolationLevel() != TransactionDefinition.ISOLATION_DEFAULT ?
 							definition.getIsolationLevel() : null);
 			TransactionSynchronizationManager.setCurrentTransactionReadOnly(definition.isReadOnly());
+			// definition.getName() 就是方法名 org.springframework.tests.sample.beans.TestBean.getName
 			TransactionSynchronizationManager.setCurrentTransactionName(definition.getName());
 			TransactionSynchronizationManager.initSynchronization();
 		}

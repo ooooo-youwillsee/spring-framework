@@ -186,6 +186,7 @@ public class ReactiveAdapterRegistry {
 	 * @since 5.0.2
 	 */
 	public static ReactiveAdapterRegistry getSharedInstance() {
+		// 懒汉模式的单例
 		ReactiveAdapterRegistry registry = sharedInstance;
 		if (registry == null) {
 			synchronized (ReactiveAdapterRegistry.class) {

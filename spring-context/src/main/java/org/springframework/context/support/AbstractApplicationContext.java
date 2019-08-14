@@ -530,7 +530,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 			// Prepare the bean factory for use in this context.
 			/*
-			* 准备beanFactory
+			* 准备beanFactory，主要是添加了以下两个后置处理器： ApplicationContextAwareProcessor 和  ApplicationListenerDetector
 			* */
 			prepareBeanFactory(beanFactory);
 
