@@ -307,6 +307,12 @@ public abstract class TransactionSynchronizationManager {
 	 * @see TransactionSynchronization
 	 */
 	public static List<TransactionSynchronization> getSynchronizations() throws IllegalStateException {
+
+		/*
+		* 在上上个方法中判断了是否处于同步激活状态  --> TransactionSynchronizationManager.isSynchronizationActive()
+		* 而这个方法，就是在判断synchronizations.get()的结果是否为null
+		* */
+
 		Set<TransactionSynchronization> synchs = synchronizations.get();
 		if (synchs == null) {
 			throw new IllegalStateException("Transaction synchronization is not active");
@@ -320,6 +326,7 @@ public abstract class TransactionSynchronizationManager {
 		else {
 			// Sort lazily here, not in registerSynchronization.
 			List<TransactionSynchronization> sortedSynchs = new ArrayList<>(synchs);
+			// 排序
 			AnnotationAwareOrderComparator.sort(sortedSynchs);
 			return Collections.unmodifiableList(sortedSynchs);
 		}

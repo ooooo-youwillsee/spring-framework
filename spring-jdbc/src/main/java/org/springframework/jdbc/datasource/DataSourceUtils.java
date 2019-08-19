@@ -176,6 +176,7 @@ public abstract class DataSourceUtils {
 		Assert.notNull(con, "No Connection specified");
 
 		// Set read-only flag.
+		// 设置是否只读
 		if (definition != null && definition.isReadOnly()) {
 			try {
 				if (logger.isDebugEnabled()) {
@@ -199,6 +200,7 @@ public abstract class DataSourceUtils {
 
 		// Apply specific isolation level, if any.
 		Integer previousIsolationLevel = null;
+		// 设置事务隔离级别
 		if (definition != null && definition.getIsolationLevel() != TransactionDefinition.ISOLATION_DEFAULT) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Changing isolation level of JDBC Connection [" + con + "] to " +
@@ -211,6 +213,7 @@ public abstract class DataSourceUtils {
 			}
 		}
 
+		// 这里返回之前事务的隔离级别
 		return previousIsolationLevel;
 	}
 
