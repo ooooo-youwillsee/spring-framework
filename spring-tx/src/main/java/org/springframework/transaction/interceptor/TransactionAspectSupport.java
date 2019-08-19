@@ -355,14 +355,20 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 			try {
 				// This is an around advice: Invoke the next interceptor in the chain.
 				// This will normally result in a target object being invoked.
+				/*
+				* 执行proceedWithInvocation()方法就是在执行invocation#proceed()
+				* 也就是说，这里有其他的aop也会在这里执行
+				* */
 				retVal = invocation.proceedWithInvocation();
 			}
 			catch (Throwable ex) {
 				// target invocation exception
+				// 如果执行proceed()方法，抛出异常，处理异常信息
 				completeTransactionAfterThrowing(txInfo, ex);
 				throw ex;
 			}
 			finally {
+				// 清除事务信息对象，就是解绑当前线程
 				cleanupTransactionInfo(txInfo);
 			}
 
@@ -374,6 +380,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 				}
 			}
 
+			// commit
 			commitTransactionAfterReturning(txInfo);
 			return retVal;
 		}
@@ -641,13 +648,17 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 	 * @param ex throwable encountered
 	 */
 	protected void completeTransactionAfterThrowing(@Nullable TransactionInfo txInfo, Throwable ex) {
+		// txInfo不为空，并且有事务状态
 		if (txInfo != null && txInfo.getTransactionStatus() != null) {
 			if (logger.isTraceEnabled()) {
 				logger.trace("Completing transaction for [" + txInfo.getJoinpointIdentification() +
 						"] after exception: " + ex);
 			}
+			// transactionAttribute --> org.springframework.transaction.interceptor.RuleBasedTransactionAttribute.rollbackOn
+			// 如果支持ex类型的异常回滚，调用rollback()， 默认只支持RuntimeException和Error的异常回滚
 			if (txInfo.transactionAttribute != null && txInfo.transactionAttribute.rollbackOn(ex)) {
 				try {
+					// 根据事务状态，来进行回滚
 					txInfo.getTransactionManager().rollback(txInfo.getTransactionStatus());
 				}
 				catch (TransactionSystemException ex2) {
@@ -663,6 +674,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 			else {
 				// We don't roll back on this exception.
 				// Will still roll back if TransactionStatus.isRollbackOnly() is true.
+				// 不支持ex类型的异常回滚，执行commit()
 				try {
 					txInfo.getTransactionManager().commit(txInfo.getTransactionStatus());
 				}

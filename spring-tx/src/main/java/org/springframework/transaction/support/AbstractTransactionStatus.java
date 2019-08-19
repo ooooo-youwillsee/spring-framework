@@ -150,8 +150,10 @@ public abstract class AbstractTransactionStatus implements TransactionStatus {
 			throw new TransactionUsageException(
 					"Cannot roll back to savepoint - no savepoint associated with current transaction");
 		}
+		// 实际上就是调用数据库的接口connection来进行rollback和release
 		getSavepointManager().rollbackToSavepoint(savepoint);
 		getSavepointManager().releaseSavepoint(savepoint);
+		// 重新设置保存点为null
 		setSavepoint(null);
 	}
 
