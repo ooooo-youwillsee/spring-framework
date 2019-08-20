@@ -633,10 +633,12 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 	 * @param txInfo information about the current transaction
 	 */
 	protected void commitTransactionAfterReturning(@Nullable TransactionInfo txInfo) {
+		// txInfo不为null，并且事务状态不为空
 		if (txInfo != null && txInfo.getTransactionStatus() != null) {
 			if (logger.isTraceEnabled()) {
 				logger.trace("Completing transaction for [" + txInfo.getJoinpointIdentification() + "]");
 			}
+			// 获得事务管理器，执行commit()操作
 			txInfo.getTransactionManager().commit(txInfo.getTransactionStatus());
 		}
 	}
