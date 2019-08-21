@@ -3,6 +3,7 @@ package com.ooooo.tx;
 import org.junit.Test;
 import org.springframework.transaction.TxNamespaceHandlerTests;
 import org.springframework.transaction.annotation.AnnotationTransactionNamespaceHandlerTests;
+import org.springframework.transaction.annotation.EnableTransactionManagementTests;
 
 /**
  * @author leizhijie
@@ -20,6 +21,10 @@ public class TxTests {
 	 */
 	private final AnnotationTransactionNamespaceHandlerTests annotationTransactionNamespaceHandlerTests = new AnnotationTransactionNamespaceHandlerTests();
 
+	/**
+	 * 注解@enableTransactionManagement 测试类
+	 */
+	private final EnableTransactionManagementTests enableTransactionManagementTests = new EnableTransactionManagementTests();
 
 	/**
 	 * 测试xml配置的事务
@@ -69,5 +74,14 @@ public class TxTests {
 	@Test
 	public void test_propagation() {
 		annotationTransactionNamespaceHandlerTests.get_ooooo_TransactionalTestBean().testTransactional();
+	}
+
+
+	/**
+	 * 测试@EnableTransactionManagement注解
+	 */
+	@Test
+	public void test_EnableTransactionManagement(){
+		enableTransactionManagementTests.txManagerIsResolvedOnInvocationOfTransactionalMethod();
 	}
 }

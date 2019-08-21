@@ -4,6 +4,7 @@ import org.junit.Test;
 import org.springframework.aop.aspectj.autoproxy.AspectJAutoProxyCreatorTests;
 import org.springframework.aop.config.AopNamespaceHandlerAdviceTypeTests;
 import org.springframework.aop.config.AopNamespaceHandlerTests;
+import org.springframework.context.annotation.EnableAspectJAutoProxyTests;
 
 /**
  * @author leizhijie
@@ -26,6 +27,12 @@ public class AopTests {
 	 * 基于注解@aspect 代理
 	 */
 	private final AspectJAutoProxyCreatorTests aspectJAutoProxyCreatorTests = new AspectJAutoProxyCreatorTests();
+
+
+	/**
+	 * 注解@enableAspectJAutoProxy 测试类
+	 */
+	private final EnableAspectJAutoProxyTests enableAspectJAutoProxyTests = new EnableAspectJAutoProxyTests();
 
 	/**
 	 * 解析aop标签
@@ -94,6 +101,11 @@ public class AopTests {
 	@Test
 	public void aspectJAutoProxyCreatorTests_testRetryAspect() {
 		aspectJAutoProxyCreatorTests.testRetryAspect();
+	}
+
+	@Test
+	public void test_enableAspectJAutoProxyTests(){
+		enableAspectJAutoProxyTests.withJdkProxy();
 	}
 
 }
