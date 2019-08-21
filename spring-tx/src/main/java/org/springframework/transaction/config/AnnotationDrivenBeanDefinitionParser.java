@@ -60,8 +60,11 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 	@Override
 	@Nullable
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
+
+		// 这里就是解析标签 <tx:annotation-driven>  实际上就是注册了事务事件监听器
 		registerTransactionalEventListenerFactory(parserContext);
 		String mode = element.getAttribute("mode");
+		// 根据不同的代理模式来创建，默认是proxy
 		if ("aspectj".equals(mode)) {
 			// mode="aspectj"
 			registerTransactionAspect(element, parserContext);
@@ -106,6 +109,7 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 	}
 
 	private void registerTransactionalEventListenerFactory(ParserContext parserContext) {
+		//
 		RootBeanDefinition def = new RootBeanDefinition();
 		def.setBeanClass(TransactionalEventListenerFactory.class);
 		parserContext.registerBeanComponent(new BeanComponentDefinition(def,
