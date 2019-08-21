@@ -43,7 +43,13 @@ abstract class TransactionAttributeSourcePointcut extends StaticMethodMatcherPoi
 
 	@Override
 	public boolean matches(Method method, Class<?> targetClass) {
+		// 这里获得的 TransactionAttributeSource --> AnnotationTransactionAttributeSource (基于注解的)
 		TransactionAttributeSource tas = getTransactionAttributeSource();
+		// 执行的是 AbstractFallbackTransactionAttributeSource.getTransactionAttribute()方法
+		/*
+		* tas.getTransactionAttribute(method, targetClass) 这个方法执行返回的就是TransactionAttribute（事务属性），
+		* 也就是说返回的结果不为空，则这个方法需要开启事务，匹配成功
+		* */
 		return (tas == null || tas.getTransactionAttribute(method, targetClass) != null);
 	}
 
@@ -86,12 +92,15 @@ abstract class TransactionAttributeSourcePointcut extends StaticMethodMatcherPoi
 
 		@Override
 		public boolean matches(Class<?> clazz) {
+			// 对下列类不需要开启事务
 			if (TransactionalProxy.class.isAssignableFrom(clazz) ||
 					PlatformTransactionManager.class.isAssignableFrom(clazz) ||
 					PersistenceExceptionTranslator.class.isAssignableFrom(clazz)) {
 				return false;
 			}
+			// 获得TransactionAttributeSource对象(事务属性源)
 			TransactionAttributeSource tas = getTransactionAttributeSource();
+			// 对于spring的事务来说，本质上就是来执行 SpringTransactionAnnotationParser#isCandidateClass() --> 判断是否有transactional注解
 			return (tas == null || tas.isCandidateClass(clazz));
 		}
 	}

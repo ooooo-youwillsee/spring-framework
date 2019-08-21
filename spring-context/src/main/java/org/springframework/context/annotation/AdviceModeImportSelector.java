@@ -64,6 +64,7 @@ public abstract class AdviceModeImportSelector<A extends Annotation> implements 
 	 */
 	@Override
 	public final String[] selectImports(AnnotationMetadata importingClassMetadata) {
+		// 解析getClass()的结果作为AdviceModeImportSelector接口，annType为泛型，如果没有泛型，说明没有注解
 		Class<?> annType = GenericTypeResolver.resolveTypeArgument(getClass(), AdviceModeImportSelector.class);
 		Assert.state(annType != null, "Unresolvable type argument for AdviceModeImportSelector");
 

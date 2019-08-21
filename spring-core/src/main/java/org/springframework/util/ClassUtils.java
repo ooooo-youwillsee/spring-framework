@@ -1240,6 +1240,7 @@ public abstract class ClassUtils {
 	 * @see #getInterfaceMethodIfPossible
 	 */
 	public static Method getMostSpecificMethod(Method method, @Nullable Class<?> targetClass) {
+		// targetClass != method.getDeclaringClass() 表示这个method可能是父类，也可能是接口中的方法
 		if (targetClass != null && targetClass != method.getDeclaringClass() && isOverridable(method, targetClass)) {
 			try {
 				if (Modifier.isPublic(method.getModifiers())) {
