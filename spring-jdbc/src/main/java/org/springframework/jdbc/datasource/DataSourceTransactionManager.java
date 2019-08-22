@@ -236,6 +236,7 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 	protected Object doGetTransaction() {
 		DataSourceTransactionObject txObject = new DataSourceTransactionObject();
 		txObject.setSavepointAllowed(isNestedTransactionAllowed());
+		// 如果是第一次开启事务，conHolder为null，如果先前存在事务，conHolder不为null
 		ConnectionHolder conHolder =
 				(ConnectionHolder) TransactionSynchronizationManager.getResource(obtainDataSource());
 		txObject.setConnectionHolder(conHolder, false);
@@ -258,7 +259,7 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 		Connection con = null;
 
 		try {
-			// 下面if语句返回true，说明可能是已经存在事务了，所以要重新获得connection，重新设置connectionHolder(连接上下文对象)
+			// 下面if语句返回true，说明可能是先前不存在事务，也可能是先前的事务被挂起了，所以要获得connection，重新设置connectionHolder(连接上下文对象)
 			if (!txObject.hasConnectionHolder() ||
 					txObject.getConnectionHolder().isSynchronizedWithTransaction()) {
 				Connection newCon = obtainDataSource().getConnection();

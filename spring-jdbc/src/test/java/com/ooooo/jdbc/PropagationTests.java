@@ -40,7 +40,10 @@ public class PropagationTests {
 	@Test
 	public void test1() {
 		// 调试事务对异常的回滚
-		assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> testBean1.test1());
+		//assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> testBean1.test1());
+
+		// 测试传播事务
+		testBean1.test2();
 	}
 
 

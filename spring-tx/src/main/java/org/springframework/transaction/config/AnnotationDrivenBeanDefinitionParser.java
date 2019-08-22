@@ -109,7 +109,7 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 	}
 
 	private void registerTransactionalEventListenerFactory(ParserContext parserContext) {
-		//
+		// 注册事务监听器，--> 在事务激活状态下，注册事务同步
 		RootBeanDefinition def = new RootBeanDefinition();
 		def.setBeanClass(TransactionalEventListenerFactory.class);
 		parserContext.registerBeanComponent(new BeanComponentDefinition(def,

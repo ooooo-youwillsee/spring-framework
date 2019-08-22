@@ -642,7 +642,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 			try {
 				Object suspendedResources = null;
 				if (transaction != null) {
-					// 传入的参数transaction不为空，也要执行挂起事务操作，本质上就是释放资源
+					// 传入的参数transaction不为空，也要执行挂起事务操作，本质上就是释放资源，挂起事务一定要把connectionHolder设置null，以便下次获取新的connectionHolder
 					suspendedResources = doSuspend(transaction);
 				}
 				// 获得当前事务名称

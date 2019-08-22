@@ -365,6 +365,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 				// target invocation exception
 				// 如果执行proceed()方法，抛出异常，处理异常信息
 				completeTransactionAfterThrowing(txInfo, ex);
+				// 不管有没有rollback或者commit操作，都会继续向外层事务抛出异常
 				throw ex;
 			}
 			finally {
