@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+
+       http://www.springframework.org/schema/tx https://www.springframework.org/schema/tx/spring-tx-4.0.xsd http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd">
+
+	<tx:annotation-driven order="0"/>
+
+
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<property name="user" value="root"/>
+		<property name="password" value="root"/>
+		<property name="jdbcUrl" value="jdbc:mysql://localhost/exam?userSSL=true&amp;useUnicode=true&amp;characterEncoding=UTF8&amp;serverTimezone=GMT"/>
+		<property name="driverClass" value="com.mysql.cj.jdbc.Driver"/>
+	</bean>
+
+	<bean id="transactionManager" class="com.ooooo.jdbc.beans.MyDataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+
+	<!-- 暴露出当前对象 -->
+	<aop:config expose-proxy="true"/>
+
+	<bean id="testBean1" class="com.ooooo.jdbc.beans.TransactionalTestBean1">
+		<property name="testBean2" ref="testBean2"/>
+	</bean>
+
+	<bean id="testBean2" class="com.ooooo.jdbc.beans.TransactionalTestBean2"/>
+
+</beans>

@@ -48,7 +48,7 @@ public class TxNamespaceHandlerTests {
 
 	@Before
 	public void setup() throws Exception {
-		this.context = new ClassPathXmlApplicationContext("txNamespaceHandlerTests.xml", getClass());
+		this.context = new ClassPathXmlApplicationContext("DataSourceTransactionManager.xml", getClass());
 		this.getAgeMethod = ITestBean.class.getMethod("getAge");
 		this.setAgeMethod = ITestBean.class.getMethod("setAge", int.class);
 	}

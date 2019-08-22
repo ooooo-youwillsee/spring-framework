@@ -14,9 +14,6 @@
 	<bean id="testBean"
 		  class="org.springframework.transaction.annotation.AnnotationTransactionNamespaceHandlerTests$TransactionalTestBean"/>
 
-	<!--	addBy ooooo  -->
-	<bean id="ooooo-transactionTestBean" class="com.ooooo.tx.beans.TransactionalTestBean"/>
-
 	<context:mbean-export/>
 
 </beans>

@@ -1,13 +1,23 @@
 package com.ooooo.tx;
 
 import org.junit.Test;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.TxNamespaceHandlerTests;
 import org.springframework.transaction.annotation.AnnotationTransactionNamespaceHandlerTests;
 import org.springframework.transaction.annotation.EnableTransactionManagementTests;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import java.sql.SQLException;
 
 /**
  * @author leizhijie
  * @since 2019-08-12 19:19
+ *
+ * 调试事务传播类型
+ *
+ * @see com.ooooo.jdbc.PropagationTests
+ *
  */
 public class TxTests {
 
@@ -65,15 +75,6 @@ public class TxTests {
 	@Test
 	public void annotationTransactionNamespaceHandlerTests_invokeTransactional() throws Exception {
 		annotationTransactionNamespaceHandlerTests.invokeTransactional();
-	}
-
-
-	/**
-	 * 测试事务的传播类型
-	 */
-	@Test
-	public void test_propagation() {
-		annotationTransactionNamespaceHandlerTests.get_ooooo_TransactionalTestBean().testTransactional();
 	}
 
 
