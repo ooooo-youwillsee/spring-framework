@@ -289,7 +289,7 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 				}
 				con.setAutoCommit(false);
 			}
-
+			// 判断事务是否是只读的，如果是只读的，执行sql --> SET TRANSACTION READ ONLY (设置事务为只读)
 			prepareTransactionalConnection(con, definition);
 			// 设置事务为激活状态， 用来判断当前是否存在事务
 			txObject.getConnectionHolder().setTransactionActive(true);

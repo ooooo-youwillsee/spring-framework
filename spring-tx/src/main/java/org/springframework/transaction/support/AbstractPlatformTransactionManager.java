@@ -574,7 +574,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 			TransactionDefinition definition, @Nullable Object transaction, boolean newTransaction,
 			boolean newSynchronization, boolean debug, @Nullable Object suspendedResources) {
 
-		// 获得实际的同步状态
+		// 获得实际的同步状态，如果先前已经存在事务,isSynchronizationActive()的返回值就是true，所以实际的同步状态为false
 		boolean actualNewSynchronization = newSynchronization &&
 				!TransactionSynchronizationManager.isSynchronizationActive();
 		// 返回DefaultTransactionStatus
@@ -587,7 +587,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	 * Initialize transaction synchronization as appropriate.
 	 */
 	protected void prepareSynchronization(DefaultTransactionStatus status, TransactionDefinition definition) {
-		// 如果事务状态是新的同步状态，则设置
+		// 如果事务状态是新的同步状态，则设置，注意这里判断是实际的同步状态  参考方法 --> AbstractPlatformTransactionManager.newTransactionStatus
 		if (status.isNewSynchronization()) {
 			// 实际被激活的事务
 			TransactionSynchronizationManager.setActualTransactionActive(status.hasTransaction());

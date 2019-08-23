@@ -38,8 +38,8 @@ public class TransactionalTestBean1 {
 		//test3();
 
 		// 通过当前代理对象调用自身方法  --> 测试 test3 声明为 REQUIRES_NEW
-		//((TransactionalTestBean1) (AopContext.currentProxy())).test3();
-
+		((TransactionalTestBean1) (AopContext.currentProxy())).test3();
+		//
 		// 其他bean调用   --> 测试 test3 声明为 REQUIRES_NEW
 		//testBean2.test3();
 
@@ -47,14 +47,14 @@ public class TransactionalTestBean1 {
 		//((TransactionalTestBean1) (AopContext.currentProxy())).test4();
 
 		// 测试NEVER事务 （如果存在事务，则抛出异常，接着外层事务会进行回滚，不存在事务，正常运行）
-		((TransactionalTestBean1) (AopContext.currentProxy())).test5();
+		//((TransactionalTestBean1) (AopContext.currentProxy())).test5();
 
 
 	}
 
 
-	//@Transactional(propagation = Propagation.REQUIRED) // request事务，如果存在事务，就不会新建事务，如果没有则会新建事务
-	@Transactional(propagation = Propagation.REQUIRES_NEW)  // 声明为request_new事务，会开启一个新事务，在一个新的事务中，如果没有发生异常，就会commit，不会和外层的事务干扰，如果发生异常了，就会和外层事务一起回滚，因为发生异常后，又会抛出这个异常
+	@Transactional(propagation = Propagation.REQUIRED) // request事务，如果存在事务，就不会新建事务，如果没有则会新建事务, 如果在此方法内发生异常，只会标记此事务为rollback，等异常抛到最外层事务时，发现这是个新的事务，就会回滚（jta除外）
+	//@Transactional(propagation = Propagation.REQUIRES_NEW)  // 声明为request_new事务，会开启一个新事务，在一个新的事务中，如果没有发生异常，就会commit，不会和外层的事务干扰，如果发生异常了，就会和外层事务一起回滚，因为发生异常后，又会抛出这个异常
 	//@Transactional(propagation = Propagation.NESTED)  // 如果是内嵌事务会开启一个保存点，发生异常后会回滚到保存点
 	public void test3() {
 		System.out.println("--3--");
